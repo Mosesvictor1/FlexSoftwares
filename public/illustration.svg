@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800px" height="600px" viewBox="0 0 800 600" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect fill="#FFFFFF" opacity="0.1" x="0" y="0" width="800" height="600"/>
+        <g transform="translate(100, 100)">
+            <!-- Abstract shapes representing accounting/finance -->
+            <circle fill="#FFFFFF" opacity="0.2" cx="300" cy="200" r="150"/>
+            <rect fill="#FFFFFF" opacity="0.2" x="400" y="100" width="200" height="200"/>
+            <path d="M200,300 L400,300 L300,400 Z" fill="#FFFFFF" opacity="0.2"/>
+            <!-- Decorative elements -->
+            <circle fill="#FFFFFF" opacity="0.1" cx="500" cy="300" r="50"/>
+            <circle fill="#FFFFFF" opacity="0.1" cx="100" cy="200" r="30"/>
+        </g>
+    </g>
+</svg> 

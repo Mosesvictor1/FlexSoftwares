@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200px" height="50px" viewBox="0 0 200 50" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <!-- Logo text -->
+        <text font-family="Arial-BoldMT, Arial" font-size="24" font-weight="bold" fill="#222222">
+            <tspan x="0" y="35">FlexSoft</tspan>
+        </text>
+        <!-- Decorative element -->
+        <path d="M180,10 L190,25 L180,40" stroke="#222222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+</svg> 
