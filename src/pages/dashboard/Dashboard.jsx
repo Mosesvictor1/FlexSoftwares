@@ -18,10 +18,13 @@ import {
 import Topbar from "../../components/layout/Topbar";
 import Sidebar from "../../components/layout/Sidebar";
 // import { useTheme } from "../../context/ThemeContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Aos from "aos";
+import "aos/dist/aos.css";
 
 const stats = [
   {
+    id: 1,
     title: "Total Revenue",
     value: "$24,500",
     change: "+12.5%",
@@ -31,6 +34,7 @@ const stats = [
     color: "bg-blue-500",
   },
   {
+    id: 2,
     title: "Active Users",
     value: "1,234",
     change: "+8.2%",
@@ -40,6 +44,7 @@ const stats = [
     color: "bg-emerald-500",
   },
   {
+    id: 3,
     title: "Pending Invoices",
     value: "45",
     change: "-2.4%",
@@ -49,6 +54,7 @@ const stats = [
     color: "bg-amber-500",
   },
   {
+    id: 4,
     title: "Low Stock Items",
     value: "12",
     change: "+3.1%",
@@ -87,10 +93,10 @@ const recentActivities = [
 ];
 
 const quickActions = [
-  { name: "New Sale", icon: ShoppingCart, color: "bg-blue-500" },
-  { name: "New Invoice", icon: Receipt, color: "bg-emerald-500" },
-  { name: "Add Product", icon: Package, color: "bg-amber-500" },
-  { name: "New User", icon: Users, color: "bg-rose-500" },
+  { id: 1, name: "New Sale", icon: ShoppingCart, color: "bg-blue-500" },
+  { id: 2, name: "New Invoice", icon: Receipt, color: "bg-emerald-500" },
+  { id: 3, name: "Add Product", icon: Package, color: "bg-amber-500" },
+  { id: 4, name: "New User", icon: Users, color: "bg-rose-500" },
 ];
 
 function Dashboard() {
@@ -100,6 +106,13 @@ function Dashboard() {
   const [accountingYear, setAccountingYear] = useState("2024");
   const subscriptionExpiry = "2024-12-31"; // This should come from your backend
 
+  useEffect(() => {
+    Aos.init({
+      duration: 800,
+      once: false,
+      mirror: true,
+    });
+  }, []);
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar />
@@ -113,10 +126,10 @@ function Dashboard() {
             <div className="mb-8">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white"  data-aos="fade-up">
                     Welcome back, {userRole}
                   </h1>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400"  data-aos="fade-up">
                     Here's what's happening with your business today.
                   </p>
                 </div>
@@ -124,7 +137,7 @@ function Dashboard() {
                   <div className="flex items-center gap-2">
                     <label
                       htmlFor="accounting-year"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300"  data-aos="fade-up"
                     >
                       Accounting Year:
                     </label>
@@ -133,7 +146,7 @@ function Dashboard() {
                         id="accounting-year"
                         value={accountingYear}
                         onChange={(e) => setAccountingYear(e.target.value)}
-                        className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-primary sm:text-sm sm:leading-6 dark:bg-gray-800 dark:text-white dark:ring-gray-700"
+                        className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-primary sm:text-sm sm:leading-6 dark:bg-gray-800 dark:text-white dark:ring-gray-700"  data-aos="fade-up"
                       >
                         <option value="2023">2023</option>
                         <option value="2024">2024</option>
@@ -142,7 +155,7 @@ function Dashboard() {
                       <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400"  data-aos="fade-up">
                     <Calendar className="h-4 w-4" />
                     <span>
                       Subscription Expires On:{" "}
@@ -159,6 +172,8 @@ function Dashboard() {
                 <div
                   key={stat.title}
                   className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
+                  data-aos="zoom-in"
+                  data-aos-delay={`${(stat.id % 3) * 100}`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -207,7 +222,7 @@ function Dashboard() {
 
             {/* Quick Actions */}
             <div className="mb-8">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4" data-aos="fade-up">
                 Quick Actions
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -215,6 +230,8 @@ function Dashboard() {
                   <button
                     key={action.name}
                     className="flex items-center justify-center space-x-2 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200"
+                    data-aos="zoom-in"
+                    data-aos-delay={`${(action.id % 3) * 100}`}
                   >
                     <div
                       className={`h-10 w-10 rounded-lg ${action.color} bg-opacity-10 flex items-center justify-center`}
@@ -238,7 +255,7 @@ function Dashboard() {
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-medium text-gray-900 dark:text-white">
+                  <h2 className="text-lg font-medium text-gray-900 dark:text-white" data-aos="fade-up">
                     Recent Activities
                   </h2>
                   <button className="text-sm text-primary hover:text-primary/90 dark:text-primary-400 dark:hover:text-primary-300">
@@ -251,6 +268,8 @@ function Dashboard() {
                   <div
                     key={activity.id}
                     className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200"
+                    data-aos="zoom-in"
+                    data-aos-delay={`${(activity.id % 3) * 100}`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
