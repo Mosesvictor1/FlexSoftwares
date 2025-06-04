@@ -83,7 +83,7 @@ function ForgotPassword() {
                 >
                   Back to Login
                 </Button>
-                <Button type="submit">Send Reset Link</Button>
+                <Button type="submit" className="dark:bg-gray-800">Send Reset Link</Button>
               </div>
             </form>
           ) : (

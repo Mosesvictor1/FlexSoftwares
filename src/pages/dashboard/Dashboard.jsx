@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import Topbar from "../../components/layout/Topbar";
 import Sidebar from "../../components/layout/Sidebar";
-import { useTheme } from "../../context/ThemeContext";
+// import { useTheme } from "../../context/ThemeContext";
 
 const stats = [
   {
@@ -95,7 +95,7 @@ function Dashboard() {
   // TODO: Get this from auth context/state
   const userRole = "Admin";
   const userName = "John Doe";
-  const { isDarkMode } = useTheme();
+  
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -108,6 +108,7 @@ function Dashboard() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Welcome Section */}
             <div className="mb-8">
+              
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 Welcome back, {userRole}
               </h1>

@@ -125,7 +125,7 @@ function Login() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full dark:bg-gray-800">
               Sign in
             </Button>
           </form>
