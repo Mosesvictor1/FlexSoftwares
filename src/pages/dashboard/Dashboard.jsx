@@ -13,10 +13,12 @@ import {
   ArrowDownRight,
   Calendar,
   Clock,
+  ChevronDown,
 } from "lucide-react";
 import Topbar from "../../components/layout/Topbar";
 import Sidebar from "../../components/layout/Sidebar";
 // import { useTheme } from "../../context/ThemeContext";
+import { useState } from "react";
 
 const stats = [
   {
@@ -95,7 +97,8 @@ function Dashboard() {
   // TODO: Get this from auth context/state
   const userRole = "Admin";
   const userName = "John Doe";
-  
+  const [accountingYear, setAccountingYear] = useState("2024");
+  const subscriptionExpiry = "2024-12-31"; // This should come from your backend
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -106,15 +109,48 @@ function Dashboard() {
 
         <main className="py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Welcome Section */}
+            {/* Welcome Section with Accounting Year and Subscription Info */}
             <div className="mb-8">
-              
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Welcome back, {userRole}
-              </h1>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Here's what's happening with your business today.
-              </p>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    Welcome back, {userRole}
+                  </h1>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Here's what's happening with your business today.
+                  </p>
+                </div>
+                <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row gap-4">
+                  <div className="flex items-center gap-2">
+                    <label
+                      htmlFor="accounting-year"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      Accounting Year:
+                    </label>
+                    <div className="relative">
+                      <select
+                        id="accounting-year"
+                        value={accountingYear}
+                        onChange={(e) => setAccountingYear(e.target.value)}
+                        className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-primary sm:text-sm sm:leading-6 dark:bg-gray-800 dark:text-white dark:ring-gray-700"
+                      >
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <Calendar className="h-4 w-4" />
+                    <span>
+                      Subscription Expires On:{" "}
+                      {new Date(subscriptionExpiry).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Stats Grid */}
@@ -255,6 +291,16 @@ function Dashboard() {
             </div>
           </div>
         </main>
+
+        {/* Footer */}
+        <footer className="mt-auto border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+              © Copyright CompuClick Software Ltd. www.theflexsoft.com. All
+              rights reserved.
+            </p>
+          </div>
+        </footer>
       </div>
     </div>
   );
