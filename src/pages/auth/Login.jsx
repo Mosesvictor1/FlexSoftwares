@@ -1,13 +1,24 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     userId: "",
     password: "",
+    clientId: "",
   });
+
+  useEffect(() => {
+    // Get client ID from URL if it exists
+    const params = new URLSearchParams(location.search);
+    const clientId = params.get("clientId");
+    if (clientId) {
+      setFormData((prev) => ({ ...prev, clientId }));
+    }
+  }, [location]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -53,50 +64,54 @@ function Login() {
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
               Enter your credentials to access your account
             </p>
+            {formData.clientId && (
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                Client ID: {formData.clientId}
+              </p>
+            )}
           </div>
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="userId"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-200"
-                >
-                  User ID
-                </label>
-                <input
-                  id="userId"
-                  name="userId"
-                  type="text"
-                  required
-                  className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-400 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                  placeholder="Enter your user ID"
-                  value={formData.userId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, userId: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-200"
-                >
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-400 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                />
-              </div>
+            <div>
+              <label
+                htmlFor="userId"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+              >
+                User ID
+              </label>
+              <input
+                id="userId"
+                name="userId"
+                type="text"
+                required
+                className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-400 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600"
+                placeholder="Enter your User ID"
+                value={formData.userId}
+                onChange={(e) =>
+                  setFormData({ ...formData, userId: e.target.value })
+                }
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-400 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600"
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+              />
             </div>
 
             <div className="flex items-center justify-between">
