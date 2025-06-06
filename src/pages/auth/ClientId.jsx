@@ -24,10 +24,14 @@ function ClientId() {
       if (response && response.status === true) {
         // Store client ID and client info in localStorage for future use
         localStorage.setItem("clientId", clientId);
-        if (response.data && response.data.clientinfo) {
+        if (response.data) {
+          // Save both clientinfo and companyinfo
           localStorage.setItem(
             "clientInfo",
-            JSON.stringify(response.data.clientinfo)
+            JSON.stringify({
+              clientinfo: response.data.clientinfo,
+              companyinfo: response.data.companyinfo,
+            })
           );
         }
         navigate("/login");

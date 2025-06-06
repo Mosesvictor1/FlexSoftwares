@@ -7,21 +7,48 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [clientInfo, setClientInfo] = useState(null);
+  const [selectedCompany, setSelectedCompany] = useState(null);
   const navigate = useNavigate();
 
   // Check if user is already logged in on mount
   useEffect(() => {
     const storedUser = localStorage.getItem("userData");
+    const storedClientInfo = localStorage.getItem("clientInfo");
+    const storedCompany = localStorage.getItem("selectedCompany");
+
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
+        if (storedClientInfo) {
+          setClientInfo(JSON.parse(storedClientInfo));
+        }
+        if (storedCompany) {
+          setSelectedCompany(JSON.parse(storedCompany));
+        }
       } catch (error) {
-        console.error("Error parsing stored user data:", error);
+        console.error("Error parsing stored data:", error);
         localStorage.removeItem("userData");
+        localStorage.removeItem("clientInfo");
+        localStorage.removeItem("selectedCompany");
       }
     }
     setLoading(false);
   }, []);
+
+  const setClientData = (data) => {
+    setClientInfo(data);
+    localStorage.setItem("clientInfo", JSON.stringify(data));
+
+    // If there are companies and none is selected, select the first one
+    if (data.companyinfo?.length > 0 && !selectedCompany) {
+      setSelectedCompany(data.companyinfo[0]);
+      localStorage.setItem(
+        "selectedCompany",
+        JSON.stringify(data.companyinfo[0])
+      );
+    }
+  };
 
   const login = async (clientId, username, password) => {
     try {
@@ -73,9 +100,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const setCompany = (company) => {
+    setSelectedCompany(company);
+    localStorage.setItem("selectedCompany", JSON.stringify(company));
+  };
+
   const logout = () => {
     setUser(null);
+    setClientInfo(null);
+    setSelectedCompany(null);
     localStorage.removeItem("userData");
+    localStorage.removeItem("clientInfo");
+    localStorage.removeItem("selectedCompany");
     navigate("/");
   };
 
@@ -84,6 +120,10 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
+    clientInfo,
+    setClientData,
+    selectedCompany,
+    setCompany,
     isAuthenticated: !!user,
     // User Info
     userRole: user?.userinfo?.UserType,

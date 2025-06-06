@@ -43,16 +43,21 @@ export const verifyClientId = async (clientId) => {
   }
 };
 
-export const login = async (clientId, username, password) => {
+export const login = async (
+  clientId,
+  username,
+  password,
+  companyCode = "01"
+) => {
   try {
     const response = await api.post("/api/UserLogin/login", {
       ClientID: clientId,
       UserID: username,
       UserPass: password,
       SourcePlat: "WEB",
-      CoyCode: "01",
+      CoyCode: companyCode,
       DeviceID: "WEB",
-      ShowUserDetails: "Yes"
+      ShowUserDetails: "Yes",
     });
     console.log("Login response:", response.data);
     return response.data;

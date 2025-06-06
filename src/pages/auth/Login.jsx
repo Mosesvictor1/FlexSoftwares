@@ -13,6 +13,8 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [clientData, setClientData] = useState(null);
 
   useEffect(() => {
     // If user is already authenticated, redirect to dashboard or intended destination
@@ -22,14 +24,26 @@ function Login() {
       return;
     }
 
-    // Retrieve client ID from localStorage
+    // Get client data from localStorage
     const storedClientId = localStorage.getItem("clientId");
-    if (!storedClientId) {
-      // If no client ID is found, redirect back to client ID page
+    const storedClientData = localStorage.getItem("clientInfo");
+    if (!storedClientData || !storedClientId) {
+      // If no client data is found, redirect back to client ID page
       navigate("/");
       return;
     }
     setClientId(storedClientId);
+    try {
+      const parsedData = JSON.parse(storedClientData);
+      setClientData(parsedData);
+      // If there are multiple companies, select the first one by default
+      if (parsedData.companyinfo?.length > 0) {
+        setSelectedCompany(parsedData.companyinfo[0]);
+      }
+    } catch (error) {
+      console.error("Error parsing client data:", error);
+      navigate("/");
+    }
   }, [navigate, isAuthenticated, location]);
 
   const handleSubmit = async (e) => {
@@ -41,7 +55,12 @@ function Login() {
 
     setLoading(true);
     try {
-      const success = await login(clientId, username, password);
+      const success = await login(
+        clientId,
+        username,
+        password,
+        selectedCompany?.CoyCode
+      );
       if (success) {
         // Redirect to the page they tried to visit or dashboard
         const from = location.state?.from?.pathname || "/dashboard";
@@ -54,6 +73,15 @@ function Login() {
       console.error("Login error:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCompanyChange = (e) => {
+    const company = clientData.companyinfo.find(
+      (c) => c.CoyCode === e.target.value
+    );
+    if (company) {
+      setSelectedCompany(company);
     }
   };
 
@@ -96,6 +124,31 @@ function Login() {
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4">
+              {/* Company Selector - Only show if multiple companies exist */}
+              {clientData?.clientinfo?.NoOfCoy > 1 && (
+                <div>
+                  <label
+                    htmlFor="company"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+                  >
+                    Select Company
+                  </label>
+                  <select
+                    id="company"
+                    name="company"
+                    value={selectedCompany?.CoyCode || ""}
+                    onChange={handleCompanyChange}
+                    className="mt-1 block w-full rounded-md border border-gray-400 bg-white py-2 px-3 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600"
+                  >
+                    {clientData.companyinfo.map((company) => (
+                      <option key={company.CoyCode} value={company.CoyCode}>
+                        {company.CoyName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div>
                 <label
                   htmlFor="username"
@@ -112,7 +165,7 @@ function Login() {
                     name="username"
                     type="text"
                     required
-                    className="appearance-none rounded-md relative block w-full  px-3 py-2 border border-gray-400 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600"
+                    className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-400 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600"
                     placeholder="Enter your username"
                     value={username}
                     onChange={(e) => {
@@ -139,7 +192,7 @@ function Login() {
                     name="password"
                     type="password"
                     required
-                    className="appearance-none rounded-md relative block w-full  px-3 py-2 border border-gray-400 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600"
+                    className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-400 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600"
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => {
