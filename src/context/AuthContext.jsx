@@ -50,9 +50,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (clientId, username, password) => {
+  const login = async (clientId, username, password, selectedCompany) => {
+    console.log("ddddd===", clientId, username, password, selectedCompany)
     try {
-      const response = await apiLogin(clientId, username, password);
+      const response = await apiLogin(
+        clientId,
+        username,
+        password,
+        selectedCompany
+      );
 
       if (response && response.status === true) {
         const userData = {

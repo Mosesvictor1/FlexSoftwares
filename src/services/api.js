@@ -47,15 +47,16 @@ export const login = async (
   clientId,
   username,
   password,
-  companyCode = "01"
+  selectedCompany
 ) => {
+  console.log(selectedCompany)
   try {
     const response = await api.post("/api/UserLogin/login", {
       ClientID: clientId,
       UserID: username,
       UserPass: password,
       SourcePlat: "WEB",
-      CoyCode: companyCode,
+      CoyCode: selectedCompany || "01",
       DeviceID: "WEB",
       ShowUserDetails: "Yes",
     });
