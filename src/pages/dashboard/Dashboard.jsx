@@ -105,6 +105,7 @@ function Dashboard() {
   const {
     userRole,
     userName,
+    userId,
     accountingYears,
     currentAccountingYear,
     companyInfo,
@@ -128,7 +129,7 @@ function Dashboard() {
       <Sidebar />
 
       <div className="lg:pl-64">
-        <Topbar userRole={userRole} userName={userName} />
+        <Topbar userRole={userName} userName={userRole} />
 
         <main className="py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -140,7 +141,7 @@ function Dashboard() {
                     className="text-2xl font-bold text-gray-900 dark:text-white"
                     data-aos="fade-up"
                   >
-                    Welcome back, {userName}
+                    Welcome back, {userId}
                   </h1>
                   <p
                     className="mt-1 text-sm text-gray-500 dark:text-gray-400"

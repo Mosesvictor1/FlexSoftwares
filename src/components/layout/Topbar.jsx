@@ -1,8 +1,48 @@
-import { Bell, Search, Sun, Moon } from "lucide-react";
+import {
+  Bell,
+  Search,
+  Sun,
+  Moon,
+  Settings,
+  LogOut,
+  KeyRound,
+} from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 function Topbar({ userRole, userName }) {
   const { isDarkMode, toggleTheme } = useTheme();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const settingsRef = useRef(null);
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (settingsRef.current && !settingsRef.current.contains(event.target)) {
+        setIsSettingsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
+  const handleChangePassword = () => {
+    navigate("/change-password");
+    setIsSettingsOpen(false);
+  };
 
   return (
     <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:gap-x-6 sm:px-6 lg:px-8">
@@ -50,7 +90,39 @@ function Topbar({ userRole, userName }) {
             aria-hidden="true"
           />
 
-          {/* Profile dropdown */}
+          {/* Settings Dropdown */}
+          <div className="relative" ref={settingsRef}>
+            <button
+              type="button"
+              onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+              className="rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 dark:bg-gray-800 dark:text-gray-300 dark:hover:text-gray-200"
+            >
+              <span className="sr-only">Settings</span>
+              <Settings className="h-6 w-6" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {isSettingsOpen && (
+              <div className="absolute right-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-gray-800 dark:ring-gray-700">
+                <button
+                  onClick={handleChangePassword}
+                  className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                >
+                  <KeyRound className="mr-3 h-5 w-5" />
+                  Change Password
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                >
+                  <LogOut className="mr-3 h-5 w-5" />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Profile Info */}
           <div className="flex items-center gap-x-4">
             <div className="hidden lg:flex lg:flex-col">
               <span className="text-sm font-semibold leading-6 text-gray-900 dark:text-white">

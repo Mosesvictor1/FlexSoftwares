@@ -36,10 +36,19 @@ function ClientId() {
         }
         navigate("/login");
       } else {
-        navigate("/invalid-client");
+        // Navigate to invalid client page with the error message from the API
+        navigate("/invalid-client", {
+          state: {
+            errorMessage: response?.message || "Invalid client ID",
+          },
+        });
       }
     } catch (error) {
-      setError("Failed to verify client ID. Please try again.");
+      // Handle API error response
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to verify client ID. Please try again.";
+      setError(errorMessage);
       console.error("Verification error:", error);
     } finally {
       setLoading(false);

@@ -11,6 +11,7 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import ClientId from "./pages/auth/ClientId";
 import InvalidClientId from "./pages/auth/InvalidClientId";
 import Dashboard from "./pages/dashboard/Dashboard";
+import ChangePassword from "./pages/auth/ChangePassword";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -37,6 +38,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/change-password"
+                element={
+                  <ProtectedRoute>
+                    <ChangePassword />
                   </ProtectedRoute>
                 }
               />
