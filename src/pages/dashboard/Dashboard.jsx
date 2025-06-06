@@ -21,6 +21,8 @@ import Sidebar from "../../components/layout/Sidebar";
 import { useEffect, useState } from "react";
 import Aos from "aos";
 import "aos/dist/aos.css";
+import { useAuth } from "../../context/AuthContext";
+import { Navigate } from "react-router-dom";
 
 const stats = [
   {
@@ -94,17 +96,24 @@ const recentActivities = [
 
 const quickActions = [
   { id: 1, name: "New Sale", icon: ShoppingCart, color: "bg-blue-500" },
-  { id: 2, name: "New Invoice", icon: Receipt, color: "bg-emerald-500" },
+  { id: 2, name: "New Credit Sale", icon: Receipt, color: "bg-emerald-500" },
   { id: 3, name: "Add Product", icon: Package, color: "bg-amber-500" },
-  { id: 4, name: "New User", icon: Users, color: "bg-rose-500" },
+  { id: 4, name: "New Goods Received Note", icon: Users, color: "bg-rose-500" },
 ];
 
 function Dashboard() {
-  // TODO: Get this from auth context/state
-  const userRole = "Admin";
-  const userName = "John Doe";
-  const [accountingYear, setAccountingYear] = useState("2024");
-  const subscriptionExpiry = "2024-12-31"; // This should come from your backend
+  const {
+    userRole,
+    userName,
+    accountingYears,
+    currentAccountingYear,
+    companyInfo,
+  } = useAuth();
+
+  const [accountingYear, setAccountingYear] = useState(
+    currentAccountingYear || "2024"
+  );
+  const subscriptionExpiry = companyInfo?.ExpDate || "2024-12-31";
 
   useEffect(() => {
     Aos.init({
@@ -113,6 +122,7 @@ function Dashboard() {
       mirror: true,
     });
   }, []);
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar />
@@ -126,10 +136,16 @@ function Dashboard() {
             <div className="mb-8">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white"  data-aos="fade-up">
-                    Welcome back, {userRole}
+                  <h1
+                    className="text-2xl font-bold text-gray-900 dark:text-white"
+                    data-aos="fade-up"
+                  >
+                    Welcome back, {userName}
                   </h1>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400"  data-aos="fade-up">
+                  <p
+                    className="mt-1 text-sm text-gray-500 dark:text-gray-400"
+                    data-aos="fade-up"
+                  >
                     Here's what's happening with your business today.
                   </p>
                 </div>
@@ -137,7 +153,8 @@ function Dashboard() {
                   <div className="flex items-center gap-2">
                     <label
                       htmlFor="accounting-year"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"  data-aos="fade-up"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      data-aos="fade-up"
                     >
                       Accounting Year:
                     </label>
@@ -146,16 +163,22 @@ function Dashboard() {
                         id="accounting-year"
                         value={accountingYear}
                         onChange={(e) => setAccountingYear(e.target.value)}
-                        className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-primary sm:text-sm sm:leading-6 dark:bg-gray-800 dark:text-white dark:ring-gray-700"  data-aos="fade-up"
+                        className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-primary sm:text-sm sm:leading-6 dark:bg-gray-800 dark:text-white dark:ring-gray-700"
+                        data-aos="fade-up"
                       >
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
+                        {accountingYears.map((year) => (
+                          <option key={year.AcctYear} value={year.AcctYear}>
+                            {year.AcctYear}
+                          </option>
+                        ))}
                       </select>
                       <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400"  data-aos="fade-up">
+                  <div
+                    className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400"
+                    data-aos="fade-up"
+                  >
                     <Calendar className="h-4 w-4" />
                     <span>
                       Subscription Expires On:{" "}
@@ -222,7 +245,10 @@ function Dashboard() {
 
             {/* Quick Actions */}
             <div className="mb-8">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4" data-aos="fade-up">
+              <h2
+                className="text-lg font-medium text-gray-900 dark:text-white mb-4"
+                data-aos="fade-up"
+              >
                 Quick Actions
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -255,8 +281,11 @@ function Dashboard() {
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-medium text-gray-900 dark:text-white" data-aos="fade-up">
-                    Recent Activities
+                  <h2
+                    className="text-lg font-medium text-gray-900 dark:text-white"
+                    data-aos="fade-up"
+                  >
+                    Recent Sales
                   </h2>
                   <button className="text-sm text-primary hover:text-primary/90 dark:text-primary-400 dark:hover:text-primary-300">
                     View all

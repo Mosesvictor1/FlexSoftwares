@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import {
   Users,
   BookOpen,
@@ -77,14 +78,24 @@ function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout, companyName, companyAddress, companyPhone } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   return (
     <>
       {/* Mobile menu button */}
-      <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:gap-x-6 sm:px-6 lg:hidden">
+      <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:gap-x-6 sm:px-6 lg:px-8">
         <button
           type="button"
-          className="-m-2.5 p-2.5 text-gray-700 dark:text-gray-200 lg:hidden"
+          className="-m-2.5 p-2.5 text-gray-700 lg:hidden dark:text-gray-200"
           onClick={() => setIsOpen(true)}
         >
           <span className="sr-only">Open sidebar</span>
@@ -126,7 +137,7 @@ function Sidebar() {
             <div className="space-y-3">
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                  CompuClick Software Ltd
+                  {companyName}
                 </h3>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Your Complete Business Solution
@@ -134,13 +145,10 @@ function Sidebar() {
               </div>
               <div className="space-y-1">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  123 Business Street
+                  {companyAddress}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Lagos, Nigeria
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  +234 803 526 9674
+                  {companyPhone}
                 </p>
               </div>
             </div>
@@ -168,7 +176,7 @@ function Sidebar() {
                 ))}
                 <button
                   className="group -mx-3 flex w-full items-center gap-x-3 rounded-md p-3 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700/50 dark:hover:text-white"
-                  onClick={() => navigate("/login")}
+                  onClick={handleLogout}
                 >
                   <LogOut className="h-5 w-5 shrink-0 text-red-500" />
                   Logout
@@ -189,7 +197,7 @@ function Sidebar() {
             <div className="space-y-3">
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                  CompuClick Software Ltd
+                  {companyName}
                 </h3>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Your Complete Business Solution
@@ -197,13 +205,10 @@ function Sidebar() {
               </div>
               <div className="space-y-1">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  123 Business Street
+                  {companyAddress}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Lagos, Nigeria
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  +234 803 526 9674
+                  {companyPhone}
                 </p>
               </div>
             </div>
@@ -235,7 +240,7 @@ function Sidebar() {
               <li className="mt-auto">
                 <button
                   className="group flex w-full items-center gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700/50 dark:hover:text-white"
-                  onClick={() => navigate("/login")}
+                  onClick={handleLogout}
                 >
                   <LogOut className="h-5 w-5 shrink-0 text-red-500" />
                   Logout

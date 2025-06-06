@@ -1,20 +1,45 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
+import { verifyClientId } from "../../services/api";
 
 function ClientId() {
   const navigate = useNavigate();
   const [clientId, setClientId] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!clientId.trim()) {
       setError("Please enter your Client ID");
       return;
     }
-    // Navigate to login with client ID
-    navigate(`/login?clientId=${encodeURIComponent(clientId)}`);
+
+    setLoading(true);
+    try {
+      const response = await verifyClientId(clientId);
+      console.log("Verification response:", response);
+
+      if (response && response.status === true) {
+        // Store client ID and client info in localStorage for future use
+        localStorage.setItem("clientId", clientId);
+        if (response.data && response.data.clientinfo) {
+          localStorage.setItem(
+            "clientInfo",
+            JSON.stringify(response.data.clientinfo)
+          );
+        }
+        navigate("/login");
+      } else {
+        navigate("/invalid-client");
+      }
+    } catch (error) {
+      setError("Failed to verify client ID. Please try again.");
+      console.error("Verification error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -84,8 +109,12 @@ function ClientId() {
               )}
             </div>
 
-            <Button type="submit" className="w-full dark:bg-gray-800">
-              Continue
+            <Button
+              type="submit"
+              className="w-full dark:bg-gray-800"
+              disabled={loading}
+            >
+              {loading ? "Verifying..." : "Continue"}
             </Button>
           </form>
         </div>
