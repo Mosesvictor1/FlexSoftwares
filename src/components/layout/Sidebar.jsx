@@ -92,7 +92,10 @@ function Sidebar() {
   return (
     <>
       {/* Mobile menu button */}
-      <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:gap-x-6 sm:px-6 lg:px-8">
+      <div className="flex sticky top-0 z-40 md:hidden h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:gap-x-6 sm:px-6 lg:px-8 justify-between">
+        <div className=" text-sm font-semibold leading-6 text-gray-900 dark:text-white">
+          <img src="assets/logo.png" alt="FlexSoft Logo" className="h-8" />
+        </div>
         <button
           type="button"
           className="-m-2.5 p-2.5 text-gray-700 lg:hidden dark:text-gray-200"
@@ -101,9 +104,6 @@ function Sidebar() {
           <span className="sr-only">Open sidebar</span>
           <Menu className="h-6 w-6" aria-hidden="true" />
         </button>
-        <div className="flex-1 text-sm font-semibold leading-6 text-gray-900 dark:text-white">
-          <img src="assets/logo.png" alt="FlexSoft Logo" className="h-8" />
-        </div>
       </div>
 
       {/* Sidebar for mobile */}

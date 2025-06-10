@@ -125,10 +125,10 @@ function Dashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 ">
       <Sidebar />
 
-      <div className="lg:pl-64">
+      <div className="lg:pl-64 ">
         <Topbar userRole={userName} userName={userRole} />
 
         <main className="py-6">
