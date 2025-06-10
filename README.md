@@ -58,14 +58,9 @@ A modern web application for Flex+ business management system, built with React 
    yarn install
    ```
 
-3. **Environment Setup**
-   Create a `.env` file in the root directory with the following variables:
 
-   ```
-   VITE_API_BASE_URL=your_api_base_url
-   ```
 
-4. **Start development server**
+3. **Start development server**
    ```bash
    npm run dev
    # or
