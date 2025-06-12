@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import Cookies from "js-cookie";
 const API_BASE_URL = "/api"; // Use the proxy path
 
 const api = axios.create({
@@ -22,12 +22,16 @@ api.interceptors.request.use(
       "Content-Type, Authorization";
 
     // Add Authorization header if token exists
-    const token = localStorage.getItem("userData")
-      ? JSON.parse(localStorage.getItem("userData"))?.token
-      : null;
-
+    const token = Cookies.get("token");
     if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
+      try {
+        // const { token } = JSON.parse(token);
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      } catch (error) {
+        console.error("Error parsing userData:", error);
+      }
     }
 
     return config;
@@ -42,10 +46,18 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Clear user data and redirect to login
+      // Save client ID and client info before clearing user data
+      const clientId = localStorage.getItem("clientId");
+      const clientInfo = localStorage.getItem("clientInfo");
+
+      // Clear user data
       localStorage.removeItem("userData");
-      localStorage.removeItem("clientInfo");
       localStorage.removeItem("selectedCompany");
+
+      // Restore client ID and client info
+      if (clientId) localStorage.setItem("clientId", clientId);
+      if (clientInfo) localStorage.setItem("clientInfo", clientInfo);
+
       window.location.href = "/login";
     }
     return Promise.reject(error);
@@ -84,6 +96,19 @@ export const login = async (clientId, username, password, selectedCompany) => {
     return response.data;
   } catch (error) {
     console.error("Login error:", error);
+    throw error;
+  }
+};
+
+export const getDashboardAnalytics = async (accountYear) => {
+  try {
+    const response = await api.get(
+      `/api/UserLogin/dashboard-analytics?AcctYear=${accountYear}`
+    );
+    console.log("Analytics==", response);
+    return response.data;
+  } catch (error) {
+    console.error("Dashboard analytics error:", error);
     throw error;
   }
 };

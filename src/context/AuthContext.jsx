@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { login as apiLogin } from "../services/api";
+import Cookies from "js-cookie";
 
 const AuthContext = createContext(null);
 
@@ -51,7 +52,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (clientId, username, password, selectedCompany) => {
-    console.log("ddddd===", clientId, username, password, selectedCompany)
+    console.log("ddddd===", clientId, username, password, selectedCompany);
     try {
       const response = await apiLogin(
         clientId,
@@ -70,10 +71,12 @@ export const AuthProvider = ({ children }) => {
         };
 
         setUser(userData);
+        Cookies.set("token", userData.token);
         // Store only non-sensitive data in localStorage
         localStorage.setItem(
           "userData",
           JSON.stringify({
+            token: userData.token,
             acctyears: userData.acctyears,
             userinfo: {
               AcctYear: userData.userinfo.AcctYear,
@@ -112,13 +115,21 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    // Save client ID and client info before clearing user data
+    const clientId = localStorage.getItem("clientId");
+    const clientInfo = localStorage.getItem("clientInfo");
+
+    // Clear user data
     setUser(null);
-    setClientInfo(null);
     setSelectedCompany(null);
     localStorage.removeItem("userData");
-    localStorage.removeItem("clientInfo");
     localStorage.removeItem("selectedCompany");
-    navigate("/");
+
+    // Restore client ID and client info
+    if (clientId) localStorage.setItem("clientId", clientId);
+    if (clientInfo) localStorage.setItem("clientInfo", clientInfo);
+
+    navigate("/login");
   };
 
   const value = {

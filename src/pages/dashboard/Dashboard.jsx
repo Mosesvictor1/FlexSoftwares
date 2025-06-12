@@ -23,6 +23,7 @@ import Aos from "aos";
 import "aos/dist/aos.css";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
+import { getDashboardAnalytics } from "../../services/api";
 
 const stats = [
   {
@@ -67,33 +68,6 @@ const stats = [
   },
 ];
 
-const recentActivities = [
-  {
-    id: 1,
-    type: "sale",
-    description: "New sale recorded - #INV-2024-001",
-    amount: "$1,200",
-    time: "5 minutes ago",
-    status: "success",
-  },
-  {
-    id: 2,
-    type: "invoice",
-    description: "Invoice #INV-2024-002 marked as paid",
-    amount: "$850",
-    time: "1 hour ago",
-    status: "success",
-  },
-  {
-    id: 3,
-    type: "stock",
-    description: "Low stock alert - Product #PRD-001",
-    amount: "5 units left",
-    time: "2 hours ago",
-    status: "warning",
-  },
-];
-
 const quickActions = [
   { id: 1, name: "New Sale", icon: ShoppingCart, color: "bg-blue-500" },
   { id: 2, name: "New Credit Sale", icon: Receipt, color: "bg-emerald-500" },
@@ -114,6 +88,8 @@ function Dashboard() {
   const [accountingYear, setAccountingYear] = useState(
     currentAccountingYear || "2024"
   );
+  const [recentActivitiess, setRecentActivities] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const subscriptionExpiry = companyInfo?.ExpDate || "2024-12-31";
 
   useEffect(() => {
@@ -124,6 +100,47 @@ function Dashboard() {
     });
   }, []);
 
+  useEffect(() => {
+    setIsLoading(true);
+    async function resentSales() {
+      try {
+        const data = await getDashboardAnalytics(accountingYear);
+        setRecentActivities(data?.data || []);
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    }
+    resentSales();
+    setIsLoading(false);
+  }, [accountingYear]);
+
+  const recentActivities = [
+    {
+      id: 1,
+      type: "sale",
+      description: "New sale recorded - #INV-2024-001",
+      amount: "$1,200",
+      time: "5 minutes ago",
+      status: "success",
+    },
+    {
+      id: 2,
+      type: "invoice",
+      description: "Invoice #INV-2024-002 marked as paid",
+      amount: "$850",
+      time: "1 hour ago",
+      status: "success",
+    },
+    {
+      id: 3,
+      type: "stock",
+      description: "Low stock alert - Product #PRD-001",
+      amount: "5 units left",
+      time: "2 hours ago",
+      status: "warning",
+    },
+  ];
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 ">
       <Sidebar />
@@ -294,48 +311,58 @@ function Dashboard() {
                 </div>
               </div>
               <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                {recentActivities.map((activity) => (
-                  <div
-                    key={activity.id}
-                    className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200"
-                    data-aos="zoom-in"
-                    data-aos-delay={`${(activity.id % 3) * 100}`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div
-                          className={`h-8 w-8 rounded-full ${
-                            activity.status === "success"
-                              ? "bg-emerald-100 dark:bg-emerald-900/30"
-                              : "bg-amber-100 dark:bg-amber-900/30"
-                          } flex items-center justify-center`}
-                        >
-                          <AlertCircle
-                            className={`h-4 w-4 ${
-                              activity.status === "success"
-                                ? "text-emerald-500"
-                                : "text-amber-500"
-                            }`}
-                          />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
-                            {activity.description}
-                          </p>
-                          <div className="flex items-center mt-1">
-                            <Clock className="h-3 w-3 text-gray-400 dark:text-gray-500 mr-1" />
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {activity.time}
-                            </p>
+                {recentActivitiess.length < 1 ? (
+                  <div className=" flex items-center justify-center my-4 bg font-medium text-red-500">
+                    Sales data is unavailable for the selected year (
+                    {accountingYear}). Please check another period or update
+                    your records.{" "}
+                  </div>
+                ) : (
+                  <dive>
+                    {recentActivitiess.map((activity) => (
+                      <div
+                        key={activity.id}
+                        className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200"
+                        data-aos="zoom-in"
+                        data-aos-delay={`${(activity.id % 3) * 100}`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div
+                              className={`h-8 w-8 rounded-full ${
+                                activity.status === "success"
+                                  ? "bg-emerald-100 dark:bg-emerald-900/30"
+                                  : "bg-amber-100 dark:bg-amber-900/30"
+                              } flex items-center justify-center`}
+                            >
+                              <AlertCircle
+                                className={`h-4 w-4 ${
+                                  activity.status === "success"
+                                    ? "text-emerald-500"
+                                    : "text-amber-500"
+                                }`}
+                              />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {activity.SalesDesc}
+                              </p>
+                              <div className="flex items-center mt-1">
+                                <Clock className="h-3 w-3 text-gray-400 dark:text-gray-500 mr-1" />
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {activity.HowLong}
+                                </p>
+                              </div>
+                            </div>
                           </div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            ${activity.ItemAmount}
+                          </p>
                         </div>
                       </div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {activity.amount}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                    ))}
+                  </dive>
+                )}
               </div>
             </div>
           </div>
