@@ -13,6 +13,8 @@ import {
   X,
   PackagePlus,
   LogOut,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 
 const navigation = [
@@ -67,15 +69,24 @@ const navigation = [
   },
   {
     name: "Point of Sale",
-    href: "/dashboard/pos",
     icon: ShoppingCart,
     color: "text-cyan-500",
     bgColor: "bg-cyan-500",
+    children: [
+      {
+        name: "Invoice",
+        children: [
+          { name: "Create", href: "/dashboard/pos/invoice/create" },
+          { name: "List", href: "/dashboard/pos/invoice/list" },
+        ],
+      },
+    ],
   },
 ];
 
 function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [openMenus, setOpenMenus] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, companyName, companyAddress, companyPhone } = useAuth();
@@ -89,12 +100,136 @@ function Sidebar() {
     }
   };
 
+  const toggleMenu = (menuName) => {
+    setOpenMenus((prev) => ({
+      ...prev,
+      [menuName]: !prev[menuName],
+    }));
+  };
+
+  const renderNavItem = (item) => {
+    if (item.children) {
+      return (
+        <div key={item.name} className="relative">
+          <button
+            onClick={() => toggleMenu(item.name)}
+            className={`group flex w-full items-center justify-between rounded-md p-2 text-sm font-semibold leading-6 ${
+              location.pathname.startsWith(item.href || "")
+                ? "bg-gray-50 text-gray-900 dark:bg-gray-700/50 dark:text-white"
+                : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700/50 dark:hover:text-white"
+            }`}
+          >
+            <div className="flex items-center gap-x-3">
+              <item.icon
+                className={`h-5 w-5 shrink-0 ${item.color}`}
+                aria-hidden="true"
+              />
+              {item.name}
+            </div>
+            <ChevronDown
+              className={`h-4 w-4 transition-transform duration-500 ease-in-out ${
+                openMenus[item.name] ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+          <div
+            className={`overflow-hidden transition-all duration-500 ease-in-out ${
+              openMenus[item.name]
+                ? "max-h-[500px] opacity-100"
+                : "max-h-0 opacity-0"
+            }`}
+          >
+            <div className="relative ml-4 mt-1 space-y-1">
+              {item.children.map((child) => (
+                <div key={child.name} className="relative">
+                  {child.children ? (
+                    <div>
+                      <div className="absolute left-0 top-0 bottom-0 w-4 border-l-2 border-b-2 border-gray-200 dark:border-gray-500"></div>
+                      <button
+                        onClick={() => toggleMenu(child.name)}
+                        className="group flex w-full items-center justify-between rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700/50 dark:hover:text-white pl-4"
+                      >
+                        {child.name}
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform duration-500 ease-in-out ${
+                            openMenus[child.name] ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                      <div
+                        className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                          openMenus[child.name]
+                            ? "max-h-[500px] opacity-100"
+                            : "max-h-0 opacity-0"
+                        }`}
+                      >
+                        <div className="relative ml-4 mt-1 space-y-1">
+                          {child.children.map((grandChild) => (
+                            <div key={grandChild.name} className="relative">
+                              <div className="absolute left-0 top-0 bottom-0 w-4 border-l-2 border-gray-200 dark:border-gray-500"></div>
+                              <Link
+                                to={grandChild.href}
+                                className={`block rounded-md p-2 text-sm font-semibold leading-6 pl-4 ${
+                                  location.pathname === grandChild.href
+                                    ? "bg-gray-50 text-gray-900 dark:bg-gray-700/50 dark:text-white"
+                                    : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700/50 dark:hover:text-white"
+                                }`}
+                              >
+                                {grandChild.name}
+                              </Link>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-4 border-l-2 border-gray-200 dark:border-gray-500"></div>
+                      <Link
+                        to={child.href}
+                        className={`block rounded-md p-2 text-sm font-semibold leading-6 pl-4 ${
+                          location.pathname === child.href
+                            ? "bg-gray-50 text-gray-900 dark:bg-gray-700/50 dark:text-white"
+                            : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700/50 dark:hover:text-white"
+                        }`}
+                      >
+                        {child.name}
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <Link
+        key={item.name}
+        to={item.href}
+        className={`group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 ${
+          location.pathname === item.href
+            ? "bg-gray-50 text-gray-900 dark:bg-gray-700/50 dark:text-white"
+            : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700/50 dark:hover:text-white"
+        }`}
+      >
+        <item.icon
+          className={`h-5 w-5 shrink-0 ${item.color}`}
+          aria-hidden="true"
+        />
+        {item.name}
+      </Link>
+    );
+  };
+
   return (
     <>
       {/* Mobile menu button */}
       <div className="flex sticky top-0 z-40 md:hidden h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:gap-x-6 sm:px-6 lg:px-8 justify-between">
-        <div className=" text-sm font-semibold leading-6 text-gray-900 dark:text-white">
-          <img src="assets/logo.png" alt="FlexSoft Logo" className="h-8" />
+        <div className="text-sm font-semibold leading-6 text-gray-900 dark:text-white">
+          <img src="/assets/logo.png" alt="FlexSoft Logo" className="h-8" />
         </div>
         <button
           type="button"
@@ -117,10 +252,10 @@ function Sidebar() {
           onClick={() => setIsOpen(false)}
         />
 
-        <div className="fixed inset-y-0 left-0 z-50 w-full overflow-y-auto bg-white dark:bg-gray-800 px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10 dark:sm:ring-gray-700/10">
+        <div className="fixed inset-y-0 left-0 z-50 w-full overflow-y-auto bg-white dark:bg-gray-800 px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10 dark:sm:ring-gray-700/10 [&::-webkit-scrollbar]:w-0 [&::-webkit-scrollbar]:hidden">
           <div className="flex items-center justify-between">
             <div className="-m-1.5 p-1.5">
-              <img src="assets/logo.png" alt="FlexSoft Logo" className="h-8" />
+              <img src="/assets/logo.png" alt="FlexSoft Logo" className="h-8" />
             </div>
             <button
               type="button"
@@ -157,23 +292,7 @@ function Sidebar() {
           <div className="mt-6 flow-root">
             <div className="-my-6 divide-y divide-gray-500/10 dark:divide-gray-700/10">
               <div className="space-y-2 py-6">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`group -mx-3 flex items-center gap-x-3 rounded-md p-3 text-sm font-semibold leading-6 ${
-                      location.pathname === item.href
-                        ? "bg-gray-50 text-gray-900 dark:bg-gray-700/50 dark:text-white"
-                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700/50 dark:hover:text-white"
-                    }`}
-                  >
-                    <item.icon
-                      className={`h-5 w-5 shrink-0 ${item.color}`}
-                      aria-hidden="true"
-                    />
-                    {item.name}
-                  </Link>
-                ))}
+                {navigation.map((item) => renderNavItem(item, true))}
                 <button
                   className="group -mx-3 flex w-full items-center gap-x-3 rounded-md p-3 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700/50 dark:hover:text-white"
                   onClick={handleLogout}
@@ -188,10 +307,10 @@ function Sidebar() {
       </div>
 
       {/* Sidebar for desktop */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 px-6 pb-4">
+      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col ">
+        <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 px-6 pb-4 [&::-webkit-scrollbar]:w-0 [&::-webkit-scrollbar]:hidden">
           <div className="flex h-16 shrink-0 items-center">
-            <img src="assets/logo.png" alt="FlexSoft Logo" className="h-8" />
+            <img src="/assets/logo.png" alt="FlexSoft Logo" className="h-8" />
           </div>
           <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
             <div className="space-y-3">
@@ -218,22 +337,7 @@ function Sidebar() {
               <li>
                 <ul role="list" className="-mx-2 space-y-1">
                   {navigation.map((item) => (
-                    <li key={item.name}>
-                      <Link
-                        to={item.href}
-                        className={`group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 ${
-                          location.pathname === item.href
-                            ? "bg-gray-50 text-gray-900 dark:bg-gray-700/50 dark:text-white"
-                            : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700/50 dark:hover:text-white"
-                        }`}
-                      >
-                        <item.icon
-                          className={`h-5 w-5 shrink-0 ${item.color}`}
-                          aria-hidden="true"
-                        />
-                        {item.name}
-                      </Link>
-                    </li>
+                    <li key={item.name}>{renderNavItem(item)}</li>
                   ))}
                 </ul>
               </li>
