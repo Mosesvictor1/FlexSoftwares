@@ -174,6 +174,7 @@ function Sidebar() {
                                     ? "bg-gray-50 text-gray-900 dark:bg-gray-700/50 dark:text-white"
                                     : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700/50 dark:hover:text-white"
                                 }`}
+                                onClick={() => setIsOpen(false)}
                               >
                                 {grandChild.name}
                               </Link>
@@ -192,6 +193,7 @@ function Sidebar() {
                             ? "bg-gray-50 text-gray-900 dark:bg-gray-700/50 dark:text-white"
                             : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700/50 dark:hover:text-white"
                         }`}
+                        onClick={() => setIsOpen(false)}
                       >
                         {child.name}
                       </Link>
