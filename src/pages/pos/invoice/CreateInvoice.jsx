@@ -220,52 +220,52 @@ const CreateInvoice = () => {
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
             General Details
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Transaction Source */}
+            <div className="relative">
               <label
                 htmlFor="TransSource"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Transaction Source
               </label>
-              <div className="relative">
-                <select
-                  name="TransSource"
-                  id="TransSource"
-                  value={formData.TransSource}
-                  onChange={handleFormChange}
-                  className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4 appearance-none pr-8"
-                >
-                  <option value="Sales">Sales</option>
-                  <option value="Return">Return</option>
-                </select>
-
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-              </div>
+              <select
+                name="TransSource"
+                id="TransSource"
+                value={formData.TransSource}
+                onChange={handleFormChange}
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3 appearance-none pr-8"
+              >
+                <option value="Sales">Sales</option>
+                <option value="Return">Return</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
             </div>
-            <div>
+
+            {/* Transaction Date */}
+            <div className="relative">
               <label
                 htmlFor="TransDate"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Transaction Date
               </label>
-              <div className="relative">
-                <input
-                  type="date"
-                  name="TransDate"
-                  id="TransDate"
-                  value={formData.TransDate}
-                  onChange={handleFormChange}
-                  className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
-                />
-                <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-              </div>
+              <input
+                type="date"
+                name="TransDate"
+                id="TransDate"
+                value={formData.TransDate}
+                onChange={handleFormChange}
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
+              />
+              <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
             </div>
-            <div>
+
+            {/* Account Year */}
+            <div className="relative">
               <label
                 htmlFor="AcctYear"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Account Year
               </label>
@@ -275,14 +275,15 @@ const CreateInvoice = () => {
                 id="AcctYear"
                 value={formData.AcctYear}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
 
-            <div>
+            {/* Voucher Number */}
+            <div className="relative">
               <label
                 htmlFor="Vno"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Voucher Number
               </label>
@@ -292,14 +293,15 @@ const CreateInvoice = () => {
                 id="Vno"
                 value={formData.Vno}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
 
-            <div>
+            {/* Sales Order */}
+            <div className="relative">
               <label
                 htmlFor="SalesOrder"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Sales Order
               </label>
@@ -309,52 +311,51 @@ const CreateInvoice = () => {
                 id="SalesOrder"
                 value={formData.SalesOrder}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
 
-            <div>
+            {/* Customer Type */}
+            <div className="relative">
               <label
                 htmlFor="CustomerType"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Customer Type
               </label>
-              <div className="relative">
-                <select
-                  name="CustomerType"
-                  id="CustomerType"
-                  value={formData.CustomerType}
-                  onChange={handleFormChange}
-                  className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4 appearance-none pr-8"
-                >
-                  <option value="Retail">Retail</option>
-                  <option value="Wholesale">Wholesale</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-              </div>
+              <select
+                name="CustomerType"
+                id="CustomerType"
+                value={formData.CustomerType}
+                onChange={handleFormChange}
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3 appearance-none pr-8"
+              >
+                <option value="Retail">Retail</option>
+                <option value="Wholesale">Wholesale</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
             </div>
-            <div>
+
+            {/* Location Code */}
+            <div className="relative">
               <label
                 htmlFor="LocationCode"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Location Code
               </label>
-              <div className="relative">
-                <select
-                  name="LocationCode"
-                  id="LocationCode"
-                  value={formData.LocationCode}
-                  onChange={handleFormChange}
-                  className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4 appearance-none pr-8"
-                >
-                  <option value="MAIN">MAIN STORE</option>
-                  <option value="WAREHOUSE">WAREHOUSE</option>
-                  <option value="BRANCH">BRANCH OFFICE</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-              </div>
+              <select
+                name="LocationCode"
+                id="LocationCode"
+                value={formData.LocationCode}
+                onChange={handleFormChange}
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3 appearance-none pr-8"
+              >
+                <option value="MAIN">MAIN STORE</option>
+                <option value="WAREHOUSE">WAREHOUSE</option>
+                <option value="BRANCH">BRANCH OFFICE</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
             </div>
           </div>
         </div>
@@ -364,11 +365,12 @@ const CreateInvoice = () => {
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
             Customer Information
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Customer Code */}
+            <div className="relative">
               <label
                 htmlFor="CustomerCode"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Customer Code
               </label>
@@ -378,13 +380,15 @@ const CreateInvoice = () => {
                 id="CustomerCode"
                 value={formData.CustomerCode}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
-            <div>
+
+            {/* Customer Email */}
+            <div className="relative">
               <label
                 htmlFor="CustomerEmail"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Customer Email
               </label>
@@ -394,13 +398,15 @@ const CreateInvoice = () => {
                 id="CustomerEmail"
                 value={formData.CustomerEmail}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
-            <div>
+
+            {/* Customer Phone */}
+            <div className="relative">
               <label
                 htmlFor="CustomerPhone"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Customer Phone
               </label>
@@ -410,7 +416,7 @@ const CreateInvoice = () => {
                 id="CustomerPhone"
                 value={formData.CustomerPhone}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
           </div>
@@ -424,10 +430,10 @@ const CreateInvoice = () => {
 
           {/* Add Item Form */}
           <div className="grid grid-cols-1 md:grid-cols-6 gap-6 items-end mb-6 border-b pb-6 border-gray-200 dark:border-gray-700">
-            <div>
+            <div className="relative w-full">
               <label
                 htmlFor="itemCode"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white text-gray-600 dark:bg-gray-700 dark:text-gray-300"
               >
                 Item Code
               </label>
@@ -437,13 +443,14 @@ const CreateInvoice = () => {
                 id="itemCode"
                 value={currentItem.ItemCode}
                 onChange={handleItemChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4"
               />
             </div>
-            <div>
+
+            <div className="relative w-full">
               <label
                 htmlFor="itemQty"
-                className="block text-base  font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300"
               >
                 Quantity
               </label>
@@ -454,13 +461,14 @@ const CreateInvoice = () => {
                 value={currentItem.ItemQty}
                 onChange={handleItemChange}
                 min="1"
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4"
               />
             </div>
-            <div>
+
+            <div className="relative w-full mt-4">
               <label
                 htmlFor="unitPrice"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300"
               >
                 Unit Price
               </label>
@@ -472,13 +480,14 @@ const CreateInvoice = () => {
                 onChange={handleItemChange}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4"
               />
             </div>
-            <div>
+
+            <div className="relative w-full mt-4">
               <label
                 htmlFor="altSellingPrice"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300"
               >
                 Alt Selling Price
               </label>
@@ -490,13 +499,14 @@ const CreateInvoice = () => {
                 onChange={handleItemChange}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4"
               />
             </div>
-            <div>
+
+            <div className="relative w-full mt-4">
               <label
                 htmlFor="discountRate"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300"
               >
                 Discount Rate (%)
               </label>
@@ -509,14 +519,15 @@ const CreateInvoice = () => {
                 min="0"
                 max="100"
                 step="0.01"
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4"
               />
             </div>
-            <div>
-              <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+
+            <div className="relative w-full mt-4">
+              <label className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                 Total Amount
               </label>
-              <p className="text-xl font-semibold  border-2 h-12 pl-2 pt-2 rounded-lg text-gray-900 dark:text-white">
+              <p className="text-sm font-semibold border border-gray-300 dark:border-gray-600 h-10 pl-3 pt-1.5 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-700">
                 {parseFloat(currentItem.ItemAmount).toFixed(2)}
               </p>
             </div>
@@ -524,36 +535,37 @@ const CreateInvoice = () => {
 
           {/* Additional Item Details */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div>
+            {/* Item Type */}
+            <div className="relative">
               <label
                 htmlFor="itemType"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
               >
                 Item Type
               </label>
-              <div className="relative">
-                <select
-                  name="ItemType"
-                  id="itemType"
-                  value={currentItem.ItemType}
-                  onChange={handleItemChange}
-                  className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4 appearance-none pr-8"
-                >
-                  <option value="">Select Type</option>
-                  <option value="Gadget">Gadget</option>
-                  <option value="Electronics">Electronics</option>
-                  <option value="Apparel">Apparel</option>
-                  <option value="Food & Beverages">Food & Beverages</option>
-                  <option value="Books">Books</option>
-                  <option value="Home Goods">Home Goods</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-              </div>
+              <select
+                name="ItemType"
+                id="itemType"
+                value={currentItem.ItemType}
+                onChange={handleItemChange}
+                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm py-2 pt-4 px-3 appearance-none pr-8"
+              >
+                <option value="">Select Type</option>
+                <option value="Gadget">Gadget</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Apparel">Apparel</option>
+                <option value="Food & Beverages">Food & Beverages</option>
+                <option value="Books">Books</option>
+                <option value="Home Goods">Home Goods</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
             </div>
-            <div>
+
+            {/* Item Size */}
+            <div className="relative">
               <label
                 htmlFor="itemSize"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
               >
                 Item Size
               </label>
@@ -563,40 +575,41 @@ const CreateInvoice = () => {
                 id="itemSize"
                 value={currentItem.ItemSize}
                 onChange={handleItemChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm py-2 pt-4 px-3"
               />
             </div>
-            <div>
+
+            {/* Item Colour */}
+            <div className="relative">
               <label
                 htmlFor="itemColour"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
               >
                 Item Colour
               </label>
-              <div className="relative">
-                <select
-                  name="ItemColour"
-                  id="itemColour"
-                  value={currentItem.ItemColour}
-                  onChange={handleItemChange}
-                  className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4 appearance-none pr-8"
-                >
-                  <option value="">Select Colour</option>
-                  <option value="Red">Red</option>
-                  <option value="Blue">Blue</option>
-                  <option value="Green">Green</option>
-                  <option value="Black">Black</option>
-                  <option value="White">White</option>
-                  <option value="Gray">Gray</option>
-                  {/* Add more color options here as needed */}
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-              </div>
+              <select
+                name="ItemColour"
+                id="itemColour"
+                value={currentItem.ItemColour}
+                onChange={handleItemChange}
+                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm py-2 pt-4 px-3 appearance-none pr-8"
+              >
+                <option value="">Select Colour</option>
+                <option value="Red">Red</option>
+                <option value="Blue">Blue</option>
+                <option value="Green">Green</option>
+                <option value="Black">Black</option>
+                <option value="White">White</option>
+                <option value="Gray">Gray</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
             </div>
-            <div>
+
+            {/* Bulk Ret Factor */}
+            <div className="relative">
               <label
                 htmlFor="bulkRetFactor"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
               >
                 Bulk Ret Factor
               </label>
@@ -607,7 +620,7 @@ const CreateInvoice = () => {
                 value={currentItem.BulkRetFactor}
                 onChange={handleItemChange}
                 min="1"
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm py-2 pt-4 px-3"
               />
             </div>
           </div>
@@ -697,32 +710,33 @@ const CreateInvoice = () => {
 
           {/* Currency and Exchange Rate */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-            <div>
+            {/* Base Currency */}
+            <div className="relative w-full">
               <label
                 htmlFor="BaseCurrencyCode"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white text-gray-600 dark:bg-gray-700 dark:text-gray-300"
               >
                 Base Currency
               </label>
-              <div className="relative">
-                <select
-                  name="BaseCurrencyCode"
-                  id="BaseCurrencyCode"
-                  value={formData.BaseCurrencyCode}
-                  onChange={handleFormChange}
-                  className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4 appearance-none pr-8"
-                >
-                  <option value="NGN">NGN</option>
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-              </div>
+              <select
+                name="BaseCurrencyCode"
+                id="BaseCurrencyCode"
+                value={formData.BaseCurrencyCode}
+                onChange={handleFormChange}
+                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4 appearance-none"
+              >
+                <option value="NGN">NGN</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
             </div>
-            <div>
+
+            {/* Exchange Rate */}
+            <div className="relative w-full">
               <label
                 htmlFor="ExchangeRate"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white text-gray-600 dark:bg-gray-700 dark:text-gray-300"
               >
                 Exchange Rate
               </label>
@@ -734,7 +748,12 @@ const CreateInvoice = () => {
                 onChange={handleFormChange}
                 min="0"
                 step="0.0001"
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                disabled={formData.BaseCurrencyCode === "NGN"}
+                className={`block w-full rounded-md border ${
+                  formData.BaseCurrencyCode === "NGN"
+                    ? "bg-gray-100 dark:bg-gray-600 cursor-not-allowed"
+                    : "bg-white dark:bg-gray-700"
+                } text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4`}
               />
             </div>
           </div>
@@ -745,33 +764,35 @@ const CreateInvoice = () => {
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
             Payment Details
           </h2>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
+            {/* Payment Mode Select */}
+            <div className="relative">
               <label
                 htmlFor="PaymentMode"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Payment Mode
               </label>
-              <div className="relative">
-                <select
-                  name="PaymentMode"
-                  id="PaymentMode"
-                  value={formData.PaymentMode}
-                  onChange={handleFormChange}
-                  className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4 appearance-none pr-8"
-                >
-                  <option value="Cash">Cash</option>
-                  <option value="Card">Card</option>
-                  <option value="Transfer">Transfer</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-              </div>
+              <select
+                name="PaymentMode"
+                id="PaymentMode"
+                value={formData.PaymentMode}
+                onChange={handleFormChange}
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3 appearance-none pr-10"
+              >
+                <option value="Cash">Cash</option>
+                <option value="Card">Card</option>
+                <option value="Transfer">Transfer</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
             </div>
-            <div>
+
+            {/* Split Payment */}
+            <div className="relative">
               <label
                 htmlFor="PaymentModeSplitStr"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Split Payment
               </label>
@@ -782,7 +803,7 @@ const CreateInvoice = () => {
                 value={formData.PaymentModeSplitStr}
                 onChange={handleFormChange}
                 placeholder="Cash=10000|Card=5000"
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
           </div>
@@ -790,14 +811,15 @@ const CreateInvoice = () => {
 
         {/* Return Reason (if applicable) */}
         {formData.TransSource === "Return" && (
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8">
+          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8 mt-8">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
               Return Details
             </h2>
-            <div>
+
+            <div className="relative">
               <label
                 htmlFor="ReturnReason"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Return Reason
               </label>
@@ -806,8 +828,9 @@ const CreateInvoice = () => {
                 id="ReturnReason"
                 value={formData.ReturnReason}
                 onChange={handleFormChange}
-                rows="3"
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                rows="4"
+                placeholder="Specify reason for return..."
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-3 pt-5 px-3"
               ></textarea>
             </div>
           </div>
@@ -821,10 +844,11 @@ const CreateInvoice = () => {
 
           {/* Add Empty Item Form */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-4 border-b pb-4 border-gray-200 dark:border-gray-700">
-            <div>
+            {/* Item Code */}
+            <div className="relative">
               <label
                 htmlFor="emptyItemCode"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Item Code
               </label>
@@ -834,13 +858,15 @@ const CreateInvoice = () => {
                 id="emptyItemCode"
                 value={currentEmptyItem.ItemCode}
                 onChange={handleEmptyItemChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
-            <div>
+
+            {/* Quantity */}
+            <div className="relative">
               <label
                 htmlFor="emptyItemQty"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Quantity
               </label>
@@ -848,16 +874,18 @@ const CreateInvoice = () => {
                 type="number"
                 name="ItemQty"
                 id="emptyItemQty"
+                min="1"
                 value={currentEmptyItem.ItemQty}
                 onChange={handleEmptyItemChange}
-                min="1"
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
-            <div>
+
+            {/* Bulk Ret Factor */}
+            <div className="relative">
               <label
                 htmlFor="emptyBulkRetFactor"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Bulk Ret Factor
               </label>
@@ -865,17 +893,19 @@ const CreateInvoice = () => {
                 type="number"
                 name="BulkRetFactor"
                 id="emptyBulkRetFactor"
+                min="1"
                 value={currentEmptyItem.BulkRetFactor}
                 onChange={handleEmptyItemChange}
-                min="1"
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
+
+            {/* Add Button */}
             <div className="flex items-end">
               <button
                 type="button"
                 onClick={addEmptyItem}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Empty
@@ -941,11 +971,12 @@ const CreateInvoice = () => {
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
             Financial Details
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* VAT Amount */}
+            <div className="relative">
               <label
                 htmlFor="VATAmount"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 VAT Amount
               </label>
@@ -955,14 +986,15 @@ const CreateInvoice = () => {
                 id="VATAmount"
                 value={formData.VATAmount}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
 
-            <div>
+            {/* Tender Amount */}
+            <div className="relative">
               <label
                 htmlFor="Tender"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Tender Amount
               </label>
@@ -972,14 +1004,15 @@ const CreateInvoice = () => {
                 id="Tender"
                 value={formData.Tender}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
 
-            <div>
+            {/* Discount Amount */}
+            <div className="relative">
               <label
                 htmlFor="DiscountAmount"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Discount Amount
               </label>
@@ -989,14 +1022,15 @@ const CreateInvoice = () => {
                 id="DiscountAmount"
                 value={formData.DiscountAmount}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
 
-            <div>
+            {/* Commission */}
+            <div className="relative">
               <label
                 htmlFor="Commission"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Commission
               </label>
@@ -1006,14 +1040,15 @@ const CreateInvoice = () => {
                 id="Commission"
                 value={formData.Commission}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
 
-            <div>
+            {/* Extra Charge Amount */}
+            <div className="relative">
               <label
                 htmlFor="ExtraChargeAmount"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
               >
                 Extra Charge Amount
               </label>
@@ -1023,7 +1058,7 @@ const CreateInvoice = () => {
                 id="ExtraChargeAmount"
                 value={formData.ExtraChargeAmount}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
               />
             </div>
           </div>
@@ -1034,11 +1069,13 @@ const CreateInvoice = () => {
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
             Additional Details
           </h2>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
+            {/* Item Description */}
+            <div className="relative w-full">
               <label
                 htmlFor="ItemDesc"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300"
               >
                 Item Description
               </label>
@@ -1048,13 +1085,15 @@ const CreateInvoice = () => {
                 id="ItemDesc"
                 value={formData.ItemDesc}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4"
               />
             </div>
-            <div>
+
+            {/* Table Code */}
+            <div className="relative w-full">
               <label
                 htmlFor="TableCode"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300"
               >
                 Table Code
               </label>
@@ -1064,12 +1103,11 @@ const CreateInvoice = () => {
                 id="TableCode"
                 value={formData.TableCode}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4"
               />
             </div>
           </div>
         </div>
-        
 
         {/* Total Summary */}
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8 mt-8">
@@ -1175,10 +1213,11 @@ const CreateInvoice = () => {
             Tender and Change
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
+            {/* Tender Amount */}
+            <div className="relative w-full">
               <label
                 htmlFor="Tender"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300"
               >
                 Tender Amount
               </label>
@@ -1188,13 +1227,15 @@ const CreateInvoice = () => {
                 id="Tender"
                 value={formData.Tender}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4"
               />
             </div>
-            <div>
+
+            {/* Change */}
+            <div className="relative w-full">
               <label
                 htmlFor="Change"
-                className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300"
               >
                 Change
               </label>
@@ -1204,7 +1245,7 @@ const CreateInvoice = () => {
                 id="Change"
                 value={formData.Change}
                 onChange={handleFormChange}
-                className="block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base py-3 px-4"
+                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4"
               />
             </div>
           </div>
