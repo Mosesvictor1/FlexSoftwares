@@ -1110,11 +1110,11 @@ const CreateInvoice = () => {
         </div>
 
         {/* Total Summary */}
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8 mt-8">
+        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 sm:p-8 mt-8">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
             Total Summary
           </h2>
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div className="flex justify-between items-center">
               <span className="text-lg font-medium text-gray-700 dark:text-gray-300">
                 Sub Total:
@@ -1124,10 +1124,11 @@ const CreateInvoice = () => {
               </span>
             </div>
 
-            <div className="flex justify-between items-center">
+            {/* VAT Amount */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
               <label
                 htmlFor="VATAmount"
-                className="text-lg font-medium text-gray-700 dark:text-gray-300"
+                className="text-sm md:text-lg font-medium text-gray-700 dark:text-gray-300"
               >
                 VAT Amount:
               </label>
@@ -1139,13 +1140,15 @@ const CreateInvoice = () => {
                 onChange={handleFormChange}
                 min="0"
                 step="0.01"
-                className="w-40 rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-lg py-2 px-3 text-right"
+                className="w-full sm:w-40 rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-lg py-2 px-3 text-right"
               />
             </div>
-            <div className="flex justify-between items-center">
+
+            {/* Discount Amount */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
               <label
                 htmlFor="DiscountAmount"
-                className="text-lg font-medium text-gray-700 dark:text-gray-300"
+                className="text-sm md:text-lg font-medium text-gray-700 dark:text-gray-300"
               >
                 Discount Amount:
               </label>
@@ -1157,13 +1160,15 @@ const CreateInvoice = () => {
                 onChange={handleFormChange}
                 min="0"
                 step="0.01"
-                className="w-40 rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-lg py-2 px-3 text-right"
+                className="w-full sm:w-40 rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-lg py-2 px-3 text-right"
               />
             </div>
-            <div className="flex justify-between items-center">
+
+            {/* Commission */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
               <label
                 htmlFor="Commission"
-                className="text-lg font-medium text-gray-700 dark:text-gray-300"
+                className="text-sm md:text-lg font-medium text-gray-700 dark:text-gray-300"
               >
                 Commission:
               </label>
@@ -1175,13 +1180,15 @@ const CreateInvoice = () => {
                 onChange={handleFormChange}
                 min="0"
                 step="0.01"
-                className="w-40 rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-lg py-2 px-3 text-right"
+                className="w-full sm:w-40 rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-lg py-2 px-3 text-right"
               />
             </div>
-            <div className="flex justify-between items-center">
+
+            {/* Extra Charges */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
               <label
                 htmlFor="ExtraChargeAmount"
-                className="text-lg font-medium text-gray-700 dark:text-gray-300"
+                className="text-sm md:text-lg font-medium text-gray-700 dark:text-gray-300"
               >
                 Extra Charges:
               </label>
@@ -1193,14 +1200,16 @@ const CreateInvoice = () => {
                 onChange={handleFormChange}
                 min="0"
                 step="0.01"
-                className="w-40 rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-lg py-2 px-3 text-right"
+                className="w-full sm:w-40 rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-lg py-2 px-3 text-right"
               />
             </div>
+
+            {/* Total Payable */}
             <div className="flex justify-between items-center border-t pt-4 border-gray-200 dark:border-gray-700">
-              <span className="text-xl font-semibold text-gray-900 dark:text-white">
+              <span className="text-md md:text-xl font-semibold text-gray-900 dark:text-white">
                 Total Payable:
               </span>
-              <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+              <span className="text-md md:text-xl font-bold text-blue-600 dark:text-blue-400">
                 {calculateTotalPayable().toFixed(2)}
               </span>
             </div>
