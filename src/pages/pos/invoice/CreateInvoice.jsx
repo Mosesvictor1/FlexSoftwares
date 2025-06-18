@@ -1041,57 +1041,93 @@ const CreateInvoice = () => {
             </div>
           </div>
 
-          {/* Empties Table */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Serial No
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Item Code
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Quantity
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Bulk Ret Factor
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {formData.EmptiesItems.map((item, index) => (
-                  <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {item.SerialNo}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {item.ItemCode}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {item.ItemQty}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {item.BulkRetFactor}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      <button
-                        type="button"
-                        onClick={() => removeEmptyItem(index)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {/* Empties Items List */}
+          {formData.EmptiesItems.length > 0 && (
+            <div className="mt-8 space-y-4">
+              {formData.EmptiesItems.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="bg-blue-50 dark:bg-gray-700 rounded p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end"
+                >
+                  {/* Item Code */}
+                  <div className="relative flex flex-col w-full">
+                    <label
+                      htmlFor={`empty-item-code-${idx}`}
+                      className="absolute -top-2 left-3 px-1 text-xs bg-blue-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
+                    >
+                      Item Code
+                    </label>
+                    <input
+                      id={`empty-item-code-${idx}`}
+                      type="text"
+                      className="block w-full rounded-md border border-gray-300 bg-blue-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs md:text-sm py-2 pt-4 px-3"
+                      value={item.ItemCode}
+                      onChange={(e) => {
+                        const newItems = [...formData.EmptiesItems];
+                        newItems[idx].ItemCode = e.target.value;
+                        setFormData((f) => ({ ...f, EmptiesItems: newItems }));
+                      }}
+                    />
+                  </div>
+
+                  {/* Quantity */}
+                  <div className="relative flex flex-col w-full">
+                    <label
+                      htmlFor={`empty-item-qty-${idx}`}
+                      className="absolute -top-2 left-3 px-1 text-xs bg-blue-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
+                    >
+                      Qty
+                    </label>
+                    <input
+                      id={`empty-item-qty-${idx}`}
+                      type="number"
+                      min="1"
+                      className="block w-full rounded-md border border-gray-300 bg-blue-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs md:text-sm py-2 pt-4 px-3 text-left"
+                      value={item.ItemQty}
+                      onChange={(e) => {
+                        const newItems = [...formData.EmptiesItems];
+                        newItems[idx].ItemQty = e.target.value;
+                        setFormData((f) => ({ ...f, EmptiesItems: newItems }));
+                      }}
+                    />
+                  </div>
+
+                  {/* Bulk Ret Factor */}
+                  <div className="relative flex flex-col w-full">
+                    <label
+                      htmlFor={`empty-item-bulkret-${idx}`}
+                      className="absolute -top-2 left-3 px-1 text-xs bg-blue-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
+                    >
+                      Bulk Ret
+                    </label>
+                    <input
+                      id={`empty-item-bulkret-${idx}`}
+                      type="number"
+                      min="1"
+                      className="block w-full rounded-md border border-gray-300 bg-blue-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs md:text-sm py-2 pt-4 px-3 text-left"
+                      value={item.BulkRetFactor}
+                      onChange={(e) => {
+                        const newItems = [...formData.EmptiesItems];
+                        newItems[idx].BulkRetFactor = e.target.value;
+                        setFormData((f) => ({ ...f, EmptiesItems: newItems }));
+                      }}
+                    />
+                  </div>
+
+                  {/* Remove button */}
+                  <div className="flex justify-start items-end pl-6 pb-4">
+                    <button
+                      type="button"
+                      onClick={() => removeEmptyItem(idx)}
+                      className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mt-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Financial Details / Totals Section */}
