@@ -7,8 +7,10 @@ import {
   Calendar,
   ChevronDown,
   Pencil,
+  X,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import CustomerSelectModal from "../../../components/ui/CustomerSelectModal";
 
 const CreateInvoice = () => {
   const [formData, setFormData] = useState({
@@ -22,7 +24,6 @@ const CreateInvoice = () => {
     DiscountAmount: 0,
     Commission: 0,
     CustomerType: "Retail",
-    CustomerCode: "",
     BaseCurrencyCode: "NGN",
     ExchangeRate: 1,
     ItemDesc: "",
@@ -33,8 +34,6 @@ const CreateInvoice = () => {
     ExtraChargeAmount: 0,
     PaymentModeSplitStr: "",
     SalesOrder: "",
-    CustomerEmail: "",
-    CustomerPhone: "",
     Tender: 0,
     Change: 0,
     TableCode: "",
@@ -66,6 +65,10 @@ const CreateInvoice = () => {
     BulkRetFactor: 1,
   });
 
+  const [customerModalOpen, setCustomerModalOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [manualCustomerName, setManualCustomerName] = useState("");
+
   useEffect(() => {
     // Recalculate TotalAmountItems whenever RecordItems changes
     const newTotalAmount = formData.RecordItems.reduce(
@@ -90,6 +93,32 @@ const CreateInvoice = () => {
     formData.Commission,
     formData.ExtraChargeAmount,
   ]);
+
+  useEffect(() => {
+    if (selectedCustomer) {
+      setFormData((prev) => ({
+        ...prev,
+        CustomerName: selectedCustomer.name,
+        CustomerCompany: selectedCustomer.company,
+        CustomerAddress: selectedCustomer.address,
+        CustomerPhone: selectedCustomer.phone,
+      }));
+    }
+  }, [selectedCustomer]);
+
+  useEffect(() => {
+    if (!selectedCustomer) {
+      setFormData((prev) => ({
+        ...prev,
+        CustomerName: manualCustomerName,
+        CustomerCompany: "",
+        CustomerAddress: "",
+        CustomerPhone: "",
+        CustomerEmail: "",
+        CustomerType: "Regular",
+      }));
+    }
+  }, [manualCustomerName, selectedCustomer]);
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -215,6 +244,72 @@ const CreateInvoice = () => {
       <h1 className="text-2xl font-semibold mb-6">Create New Invoice</h1>
 
       <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Customer Card or Manual Input */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-md md:w-1/2 shadow p-4 mb-6 relative">
+          <div className="flex justify-between items-start">
+            <div className="w-full">
+              <div className="text-gray-500 font-semibold mb-1 text-xs md:text-sm">
+                Customer:
+              </div>
+              {selectedCustomer ? (
+                <>
+                  <div className="font-bold text-sm md:text-base break-words">
+                    {selectedCustomer.name}
+                  </div>
+                  <div className="text-xs md:text-sm text-green-600 font-medium break-words">
+                    {selectedCustomer.company}
+                  </div>
+                  <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
+                    {selectedCustomer.address}
+                  </div>
+                  <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
+                    {selectedCustomer.phone}
+                  </div>
+                </>
+              ) : (
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-xs md:text-sm focus:outline-none focus:ring focus:border-blue-400"
+                  placeholder="Enter customer name (walk-in)"
+                  value={manualCustomerName}
+                  onChange={(e) => setManualCustomerName(e.target.value)}
+                />
+              )}
+            </div>
+            <div className="flex flex-col items-end gap-2 ml-2">
+              {selectedCustomer && (
+                <button
+                  className="text-gray-400 hover:text-red-500 p-1"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedCustomer(null);
+                  }}
+                  aria-label="Clear Customer"
+                  type="button"
+                >
+                  <X />
+                </button>
+              )}
+              <button
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCustomerModalOpen(true);
+                }}
+                aria-label="Select Customer"
+                type="button"
+              >
+                <Pencil />
+              </button>
+            </div>
+          </div>
+        </div>
+        <CustomerSelectModal
+          isOpen={customerModalOpen}
+          onClose={() => setCustomerModalOpen(false)}
+          onSelectCustomer={setSelectedCustomer}
+        />
+
         {/* General Invoice Details */}
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
@@ -315,27 +410,6 @@ const CreateInvoice = () => {
               />
             </div>
 
-            {/* Customer Type */}
-            <div className="relative">
-              <label
-                htmlFor="CustomerType"
-                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
-              >
-                Customer Type
-              </label>
-              <select
-                name="CustomerType"
-                id="CustomerType"
-                value={formData.CustomerType}
-                onChange={handleFormChange}
-                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3 appearance-none pr-8"
-              >
-                <option value="Retail">Retail</option>
-                <option value="Wholesale">Wholesale</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-            </div>
-
             {/* Location Code */}
             <div className="relative">
               <label
@@ -356,68 +430,6 @@ const CreateInvoice = () => {
                 <option value="BRANCH">BRANCH OFFICE</option>
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-            </div>
-          </div>
-        </div>
-
-        {/* Customer Information */}
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-            Customer Information
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Customer Code */}
-            <div className="relative">
-              <label
-                htmlFor="CustomerCode"
-                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
-              >
-                Customer Code
-              </label>
-              <input
-                type="text"
-                name="CustomerCode"
-                id="CustomerCode"
-                value={formData.CustomerCode}
-                onChange={handleFormChange}
-                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
-              />
-            </div>
-
-            {/* Customer Email */}
-            <div className="relative">
-              <label
-                htmlFor="CustomerEmail"
-                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
-              >
-                Customer Email
-              </label>
-              <input
-                type="email"
-                name="CustomerEmail"
-                id="CustomerEmail"
-                value={formData.CustomerEmail}
-                onChange={handleFormChange}
-                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
-              />
-            </div>
-
-            {/* Customer Phone */}
-            <div className="relative">
-              <label
-                htmlFor="CustomerPhone"
-                className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
-              >
-                Customer Phone
-              </label>
-              <input
-                type="tel"
-                name="CustomerPhone"
-                id="CustomerPhone"
-                value={formData.CustomerPhone}
-                onChange={handleFormChange}
-                className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
-              />
             </div>
           </div>
         </div>
@@ -635,78 +647,194 @@ const CreateInvoice = () => {
             </button>
           </div>
 
-          {/* Invoice Items Table */}
-          <div className="overflow-x-auto mt-8">
-            <table className="min-w-full bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-              <thead className="bg-gray-200 dark:bg-gray-700">
-                <tr>
-                  <th className="py-3 px-4 text-left text-base font-medium text-gray-700 dark:text-gray-300">
-                    Item Code
-                  </th>
-                  <th className="py-3 px-4 text-left text-base font-medium text-gray-700 dark:text-gray-300">
-                    Item Type
-                  </th>
-                  <th className="py-3 px-4 text-right text-base font-medium text-gray-700 dark:text-gray-300">
-                    Qty
-                  </th>
-                  <th className="py-3 px-4 text-right text-base font-medium text-gray-700 dark:text-gray-300">
-                    Unit Price
-                  </th>
-                  <th className="py-3 px-4 text-right text-base font-medium text-gray-700 dark:text-gray-300">
-                    Alt Selling Price
-                  </th>
-                  <th className="py-3 px-4 text-right text-base font-medium text-gray-700 dark:text-gray-300">
-                    Discount Rate
-                  </th>
-                  <th className="py-3 px-4 text-right text-base font-medium text-gray-700 dark:text-gray-300">
-                    Bulk Ret Factor
-                  </th>
-                  <th className="py-3 px-4 text-right text-base font-medium text-gray-700 dark:text-gray-300">
-                    Total Amount
-                  </th>
-                  <th className="py-3 px-4 text-right text-base font-medium text-gray-700 dark:text-gray-300">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {formData.RecordItems.map((item, index) => (
-                  <tr
-                    key={index}
-                    className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
-                  >
-                    <td className="py-3 px-4 text-left">{item.ItemCode}</td>
-                    <td className="py-3 px-4 text-left">{item.ItemType}</td>
-                    <td className="py-3 px-4 text-right">{item.ItemQty}</td>
-                    <td className="py-3 px-4 text-right">
-                      {parseFloat(item.UnitPrice).toFixed(2)}
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      {parseFloat(item.AltSellingPrice).toFixed(2)}
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      {parseFloat(item.DiscountRate).toFixed(2)}%
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      {parseFloat(item.BulkRetFactor).toFixed(2)}
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      {(item.ItemQty * item.UnitPrice).toFixed(2)}
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <button
-                        type="button"
-                        onClick={() => removeItem(index)}
-                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {/* Editable Invoice Items Rows */}
+          {formData.RecordItems.length > 0 && (
+            <div className="mt-8 space-y-4">
+              {formData.RecordItems.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="bg-gray-50 dark:bg-gray-700 rounded p-4 flex flex-wrap gap-4 items-end"
+                >
+                  {/* Item Code */}
+                  <div className="relative flex flex-col w-32">
+                    <label
+                      htmlFor={`item-code-${idx}`}
+                      className="absolute -top-2 left-3 px-1 text-xs bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
+                    >
+                      Item Code
+                    </label>
+                    <input
+                      id={`item-code-${idx}`}
+                      type="text"
+                      className="block w-full rounded-md border border-gray-300 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs md:text-sm py-2 pt-4 px-3"
+                      value={item.ItemCode}
+                      onChange={(e) => {
+                        const newItems = [...formData.RecordItems];
+                        newItems[idx].ItemCode = e.target.value;
+                        setFormData((f) => ({ ...f, RecordItems: newItems }));
+                      }}
+                    />
+                  </div>
+                  {/* Item Type */}
+                  <div className="relative flex flex-col w-32">
+                    <label
+                      htmlFor={`item-type-${idx}`}
+                      className="absolute -top-2 left-3 px-1 text-xs bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
+                    >
+                      Item Type
+                    </label>
+                    <input
+                      id={`item-type-${idx}`}
+                      type="text"
+                      className="block w-full rounded-md border border-gray-300 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs md:text-sm py-2 pt-4 px-3"
+                      value={item.ItemType}
+                      onChange={(e) => {
+                        const newItems = [...formData.RecordItems];
+                        newItems[idx].ItemType = e.target.value;
+                        setFormData((f) => ({ ...f, RecordItems: newItems }));
+                      }}
+                    />
+                  </div>
+                  {/* Qty */}
+                  <div className="relative flex flex-col w-20">
+                    <label
+                      htmlFor={`item-qty-${idx}`}
+                      className="absolute -top-2 left-3 px-1 text-xs bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
+                    >
+                      Qty
+                    </label>
+                    <input
+                      id={`item-qty-${idx}`}
+                      type="number"
+                      min="1"
+                      className="block w-full rounded-md border border-gray-300 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs md:text-sm py-2 pt-4 px-3 text-right"
+                      value={item.ItemQty}
+                      onChange={(e) => {
+                        const newItems = [...formData.RecordItems];
+                        newItems[idx].ItemQty = e.target.value;
+                        newItems[idx].ItemAmount = (
+                          parseFloat(e.target.value || 0) *
+                          parseFloat(newItems[idx].UnitPrice || 0)
+                        ).toFixed(2);
+                        setFormData((f) => ({ ...f, RecordItems: newItems }));
+                      }}
+                    />
+                  </div>
+                  {/* Unit Price */}
+                  <div className="relative flex flex-col w-24">
+                    <label
+                      htmlFor={`item-unitprice-${idx}`}
+                      className="absolute -top-2 left-3 px-1 text-xs bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
+                    >
+                      Unit Price
+                    </label>
+                    <input
+                      id={`item-unitprice-${idx}`}
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      className="block w-full rounded-md border border-gray-300 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs md:text-sm py-2 pt-4 px-3 text-right"
+                      value={item.UnitPrice}
+                      onChange={(e) => {
+                        const newItems = [...formData.RecordItems];
+                        newItems[idx].UnitPrice = e.target.value;
+                        newItems[idx].ItemAmount = (
+                          parseFloat(newItems[idx].ItemQty || 0) *
+                          parseFloat(e.target.value || 0)
+                        ).toFixed(2);
+                        setFormData((f) => ({ ...f, RecordItems: newItems }));
+                      }}
+                    />
+                  </div>
+                  {/* Alt Price */}
+                  <div className="relative flex flex-col w-24">
+                    <label
+                      htmlFor={`item-altprice-${idx}`}
+                      className="absolute -top-2 left-3 px-1 text-xs bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
+                    >
+                      Alt Price
+                    </label>
+                    <input
+                      id={`item-altprice-${idx}`}
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      className="block w-full rounded-md border border-gray-300 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs md:text-sm py-2 pt-4 px-3 text-right"
+                      value={item.AltSellingPrice}
+                      onChange={(e) => {
+                        const newItems = [...formData.RecordItems];
+                        newItems[idx].AltSellingPrice = e.target.value;
+                        setFormData((f) => ({ ...f, RecordItems: newItems }));
+                      }}
+                    />
+                  </div>
+                  {/* Discount % */}
+                  <div className="relative flex flex-col w-24">
+                    <label
+                      htmlFor={`item-discount-${idx}`}
+                      className="absolute -top-2 left-3 px-1 text-xs bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
+                    >
+                      Discount %
+                    </label>
+                    <input
+                      id={`item-discount-${idx}`}
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      className="block w-full rounded-md border border-gray-300 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs md:text-sm py-2 pt-4 px-3 text-right"
+                      value={item.DiscountRate}
+                      onChange={(e) => {
+                        const newItems = [...formData.RecordItems];
+                        newItems[idx].DiscountRate = e.target.value;
+                        setFormData((f) => ({ ...f, RecordItems: newItems }));
+                      }}
+                    />
+                  </div>
+                  {/* Bulk Ret */}
+                  <div className="relative flex flex-col w-24">
+                    <label
+                      htmlFor={`item-bulkret-${idx}`}
+                      className="absolute -top-2 left-3 px-1 text-xs bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
+                    >
+                      Bulk Ret
+                    </label>
+                    <input
+                      id={`item-bulkret-${idx}`}
+                      type="number"
+                      min="1"
+                      className="block w-full rounded-md border border-gray-300 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs md:text-sm py-2 pt-4 px-3 text-right"
+                      value={item.BulkRetFactor}
+                      onChange={(e) => {
+                        const newItems = [...formData.RecordItems];
+                        newItems[idx].BulkRetFactor = e.target.value;
+                        setFormData((f) => ({ ...f, RecordItems: newItems }));
+                      }}
+                    />
+                  </div>
+                  {/* Total (read-only) */}
+                  <div className="flex flex-col w-24">
+                    <label className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10">
+                      Total
+                    </label>
+                    <div className="block w-full rounded-md border border-gray-200 bg-gray-100 dark:bg-gray-800 px-2 py-2 text-xs md:text-sm text-right font-semibold pt-4">
+                      {parseFloat(item.ItemAmount || 0).toFixed(2)}
+                    </div>
+                  </div>
+                  {/* Remove button */}
+                  <div className="flex flex-col w-16 items-end justify-end">
+                    <button
+                      type="button"
+                      onClick={() => removeItem(idx)}
+                      className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mt-5"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Currency and Exchange Rate */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
