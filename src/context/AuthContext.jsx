@@ -19,8 +19,9 @@ export const AuthProvider = ({ children }) => {
     const storedClientInfo = localStorage.getItem("clientInfo");
     const storedCompany = localStorage.getItem("selectedCompany");
     const storedYear = localStorage.getItem("currentAccountingYear");
+    const token = Cookies.get("token");
 
-    if (storedUser) {
+    if (storedUser && token) {
       try {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
@@ -40,6 +41,19 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("userData");
         localStorage.removeItem("clientInfo");
         localStorage.removeItem("selectedCompany");
+      }
+    } else {
+      // If either userData or token is missing, clear user and redirect
+      setUser(null);
+      setSelectedCompany(null);
+      localStorage.removeItem("userData");
+      localStorage.removeItem("selectedCompany");
+      // Optionally clear currentAccountingYear
+      // localStorage.removeItem("currentAccountingYear");
+      if (!storedClientInfo || !localStorage.getItem("clientId")) {
+        navigate("/"); // Client ID page
+      } else {
+        navigate("/login");
       }
     }
     setLoading(false);

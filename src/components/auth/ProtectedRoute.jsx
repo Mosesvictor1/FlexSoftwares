@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import Cookies from "js-cookie";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -17,7 +18,8 @@ const ProtectedRoute = ({ children }) => {
     // Check for client info
     const clientId = localStorage.getItem("clientId");
     const clientInfo = localStorage.getItem("clientInfo");
-    if (!clientId || !clientInfo) {
+    const token = Cookies.get("token");
+    if (!clientId || !clientInfo || token) {
       return <Navigate to="/" replace />; // Redirect to client ID page
     }
     // Otherwise, go to login
