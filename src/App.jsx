@@ -15,6 +15,7 @@ import ChangePassword from "./pages/auth/ChangePassword";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import RootRedirect from "./components/auth/RootRedirect";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -27,7 +28,7 @@ function App() {
           <AuthProvider>
             <Routes>
               {/* Auth Routes */}
-              <Route path="/" element={<ClientId />} />
+              <Route path="/" element={<RootRedirect />} />
               <Route path="/invalid-client" element={<InvalidClientId />} />
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />

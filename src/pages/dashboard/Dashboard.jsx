@@ -24,7 +24,14 @@ import "aos/dist/aos.css";
 import { useAuth } from "../../context/AuthContext";
 import { Routes, Route } from "react-router-dom";
 import { getDashboardAnalytics } from "../../services/api";
-import { CreateInvoice, InvoiceList } from "../pos";
+import {
+  CreateInvoice,
+  InvoiceList,
+  Sales,
+  SalesOrder,
+  SalesReturns,
+  ProformaInvoice,
+} from "../pos";
 
 const stats = [
   {
@@ -83,12 +90,10 @@ function Dashboard() {
     userId,
     accountingYears,
     currentAccountingYear,
+    setCurrentAccountingYear,
     companyInfo,
   } = useAuth();
 
-  const [accountingYear, setAccountingYear] = useState(
-    currentAccountingYear || "2024"
-  );
   const [recentActivitiess, setRecentActivities] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const subscriptionExpiry = companyInfo?.ExpDate || "2024-12-31";
@@ -105,17 +110,19 @@ function Dashboard() {
     setIsLoading(true);
     async function resentSales() {
       try {
-        const data = await getDashboardAnalytics(accountingYear);
+        const data = await getDashboardAnalytics(currentAccountingYear);
         setRecentActivities(data?.data || []);
       } catch (error) {
         console.error(error);
         throw error;
       } finally {
-        setIsLoading(false); 
+        setIsLoading(false);
       }
     }
-    resentSales();
-  }, [accountingYear]);
+    if (currentAccountingYear) {
+      resentSales();
+    }
+  }, [currentAccountingYear]);
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -124,7 +131,7 @@ function Dashboard() {
       <div className="lg:pl-64">
         <Topbar userRole={userName} userName={userRole} />
 
-        <main className="py-6">
+        <main className="py-6 mb-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Routes>
               {/* Default Dashboard View */}
@@ -161,9 +168,9 @@ function Dashboard() {
                             <div className="relative">
                               <select
                                 id="accounting-year"
-                                value={accountingYear}
+                                value={currentAccountingYear}
                                 onChange={(e) =>
-                                  setAccountingYear(e.target.value)
+                                  setCurrentAccountingYear(e.target.value)
                                 }
                                 className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-primary sm:text-sm sm:leading-6 dark:bg-gray-800 dark:text-white dark:ring-gray-700"
                                 data-aos="fade-up"
@@ -309,8 +316,8 @@ function Dashboard() {
                             {recentActivitiess.length < 1 ? (
                               <div className=" flex items-center justify-center my-4 bg font-medium text-red-500">
                                 Sales data is unavailable for the selected year
-                                ({accountingYear}). Please check another period
-                                or update your records.{" "}
+                                ({currentAccountingYear}). Please check another
+                                period or update your records.{" "}
                               </div>
                             ) : (
                               <dive>
@@ -371,13 +378,23 @@ function Dashboard() {
               {/* POS Routes */}
               <Route path="/pos/invoice/create" element={<CreateInvoice />} />
               <Route path="/pos/invoice/list" element={<InvoiceList />} />
+              <Route path="/pos/sales/create" element={<Sales />} />
+              <Route path="/pos/sales-order/create" element={<SalesOrder />} />
+              <Route
+                path="/pos/sales-returns/create"
+                element={<SalesReturns />}
+              />
+              <Route
+                path="/pos/proforma-invoice/create"
+                element={<ProformaInvoice />}
+              />
             </Routes>
           </div>
         </main>
 
         {/* Footer */}
-        <footer className="mt-auto border-t border-gray-200  dark:border-gray-700 bg-white dark:bg-gray-800">
-          <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+        <footer className="mt-auto z-10 fixed bottom-0 left-0 border-t border-gray-200  dark:border-gray-700 bg-white dark:bg-gray-800 w-full">
+          <div className="max-w-7xl  mx-auto py-4 px-4 sm:px-6 lg:px-8">
             <p className="text-center text-sm text-gray-500 dark:text-gray-400">
               © Copyright CompuClick Software Ltd. www.theflexsoft.com. All
               rights reserved.

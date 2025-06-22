@@ -14,7 +14,13 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    // Redirect to login page but save the attempted url
+    // Check for client info
+    const clientId = localStorage.getItem("clientId");
+    const clientInfo = localStorage.getItem("clientInfo");
+    if (!clientId || !clientInfo) {
+      return <Navigate to="/" replace />; // Redirect to client ID page
+    }
+    // Otherwise, go to login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

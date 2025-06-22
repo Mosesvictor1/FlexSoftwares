@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [clientInfo, setClientInfo] = useState(null);
   const [selectedCompany, setSelectedCompany] = useState(null);
+  const [currentAccountingYear, setCurrentAccountingYearState] = useState(null);
   const navigate = useNavigate();
 
   // Check if user is already logged in on mount
@@ -17,10 +18,17 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem("userData");
     const storedClientInfo = localStorage.getItem("clientInfo");
     const storedCompany = localStorage.getItem("selectedCompany");
+    const storedYear = localStorage.getItem("currentAccountingYear");
 
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        if (storedYear) {
+          setCurrentAccountingYearState(storedYear);
+        } else if (parsedUser?.userinfo?.AcctYear) {
+          setCurrentAccountingYearState(parsedUser.userinfo.AcctYear);
+        }
         if (storedClientInfo) {
           setClientInfo(JSON.parse(storedClientInfo));
         }
@@ -36,6 +44,13 @@ export const AuthProvider = ({ children }) => {
     }
     setLoading(false);
   }, []);
+
+  // Persist currentAccountingYear to localStorage whenever it changes
+  useEffect(() => {
+    if (currentAccountingYear) {
+      localStorage.setItem("currentAccountingYear", currentAccountingYear);
+    }
+  }, [currentAccountingYear]);
 
   const setClientData = (data) => {
     setClientInfo(data);
@@ -132,6 +147,12 @@ export const AuthProvider = ({ children }) => {
     navigate("/login");
   };
 
+  // Provide a setter that updates both state and localStorage
+  const setCurrentAccountingYear = (year) => {
+    setCurrentAccountingYearState(year);
+    localStorage.setItem("currentAccountingYear", year);
+  };
+
   const value = {
     user,
     loading,
@@ -158,7 +179,8 @@ export const AuthProvider = ({ children }) => {
     isExecutive: user?.userinfo?.Executive === "Yes",
     // Accounting Info
     accountingYears: user?.acctyears || [],
-    currentAccountingYear: user?.userinfo?.AcctYear,
+    currentAccountingYear,
+    setCurrentAccountingYear,
     // Expiry Info
     expiryDate: user?.userinfo?.ExpiryDate,
     // Complete Objects

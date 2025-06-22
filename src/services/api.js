@@ -113,4 +113,104 @@ export const getDashboardAnalytics = async (accountYear) => {
   }
 };
 
+// POS Transaction APIs
+export const createInvoice = async (invoiceData) => {
+  try {
+    const response = await api.post("/api/Invoice/create", invoiceData);
+    console.log("Invoice created:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Create invoice error:", error);
+    throw error;
+  }
+};
+
+export const createSale = async (saleData) => {
+  try {
+    const response = await api.post("/api/Sales/create", saleData);
+    console.log("Sale created:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Create sale error:", error);
+    throw error;
+  }
+};
+
+export const createSalesOrder = async (salesOrderData) => {
+  try {
+    const response = await api.post("/api/SalesOrder/create", salesOrderData);
+    console.log("Sales Order created:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Create sales order error:", error);
+    throw error;
+  }
+};
+
+export const createSalesReturn = async (salesReturnData) => {
+  try {
+    const response = await api.post("/api/SalesReturn/create", salesReturnData);
+    console.log("Sales Return created:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Create sales return error:", error);
+    throw error;
+  }
+};
+
+export const createProformaInvoice = async (proformaInvoiceData) => {
+  try {
+    const response = await api.post(
+      "/api/ProformaInvoice/create",
+      proformaInvoiceData
+    );
+    console.log("Proforma Invoice created:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Create proforma invoice error:", error);
+    throw error;
+  }
+};
+
+// Generic POS transaction creator (alternative approach)
+export const createPOSTransaction = async (
+  transactionType,
+  transactionData
+) => {
+  try {
+    const endpoint = `/api/${transactionType}/create`;
+    const response = await api.post(endpoint, transactionData);
+    console.log(`${transactionType} created:`, response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Create ${transactionType} error:`, error);
+    throw error;
+  }
+};
+
+// Customer APIs
+export const getCustomers = async (searchTerm = "") => {
+  try {
+    const response = await api.get("/api/Customers/list", {
+      params: { search: searchTerm },
+    });
+    console.log("Customers fetched:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Get customers error:", error);
+    throw error;
+  }
+};
+
+export const createCustomer = async (customerData) => {
+  try {
+    const response = await api.post("/api/Customers/create", customerData);
+    console.log("Customer created:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Create customer error:", error);
+    throw error;
+  }
+};
+
 export default api;

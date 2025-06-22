@@ -80,6 +80,22 @@ const navigation = [
           { name: "List", href: "/dashboard/pos/invoice/list" },
         ],
       },
+      {
+        name: "Sales",
+        href: "/dashboard/pos/sales/create",
+      },
+      {
+        name: "Sales Order",
+        href: "/dashboard/pos/sales-order/create",
+      },
+      {
+        name: "Sales Returns",
+        href: "/dashboard/pos/sales-returns/create",
+      },
+      {
+        name: "Proforma Invoice",
+        href: "/dashboard/pos/proforma-invoice/create",
+      },
     ],
   },
 ];
