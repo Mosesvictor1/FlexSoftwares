@@ -1,8 +1,8 @@
 import React from "react";
-import POSForm from "../../components/pos/POSForm";
-import { salesReturnsConfig } from "../../components/pos/configs/salesReturnsConfig";
+import POSForm from "../../../components/pos/POSForm";
+import { salesReturnsConfig } from "../../../components/pos/configs/salesReturnsConfig";
 
-const SalesReturns = () => {
+const CreateSalesReturns = () => {
   const breadcrumbs = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Sales Returns" },
@@ -24,4 +24,4 @@ const SalesReturns = () => {
   );
 };
 
-export default SalesReturns;
+export default CreateSalesReturns;

@@ -1,8 +1,8 @@
 import React from "react";
-import POSForm from "../../components/pos/POSForm";
-import { proformaInvoiceConfig } from "../../components/pos/configs/proformaInvoiceConfig";
+import POSForm from "../../../components/pos/POSForm";
+import { proformaInvoiceConfig } from "../../../components/pos/configs/proformaInvoiceConfig";
 
-const ProformaInvoice = () => {
+const CreateProformaInvoice = () => {
   const breadcrumbs = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Proforma Invoice" },
@@ -24,4 +24,4 @@ const ProformaInvoice = () => {
   );
 };
 
-export default ProformaInvoice;
+export default CreateProformaInvoice;

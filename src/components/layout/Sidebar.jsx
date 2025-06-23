@@ -82,19 +82,31 @@ const navigation = [
       },
       {
         name: "Sales",
-        href: "/dashboard/pos/sales/create",
+        children: [
+          { name: "Create", href: "/dashboard/pos/sales/create" },
+          { name: "List", href: "/dashboard/pos/sales/list" },
+        ],
       },
       {
         name: "Sales Order",
-        href: "/dashboard/pos/sales-order/create",
+        children: [
+          { name: "Create", href: "/dashboard/pos/sales-order/create" },
+          { name: "List", href: "/dashboard/pos/sales-order/list" },
+        ],
       },
       {
         name: "Sales Returns",
-        href: "/dashboard/pos/sales-returns/create",
+        children: [
+          { name: "Create", href: "/dashboard/pos/sales-returns/create" },
+          { name: "List", href: "/dashboard/pos/sales-returns/list" },
+        ],
       },
       {
         name: "Proforma Invoice",
-        href: "/dashboard/pos/proforma-invoice/create",
+        children: [
+          { name: "Create", href: "/dashboard/pos/proforma-invoice/create" },
+          { name: "List", href: "/dashboard/pos/proforma-invoice/list" },
+        ],
       },
     ],
   },

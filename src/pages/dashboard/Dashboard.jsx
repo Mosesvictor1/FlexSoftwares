@@ -18,7 +18,7 @@ import {
 import Topbar from "../../components/layout/Topbar";
 import Sidebar from "../../components/layout/Sidebar";
 // import { useTheme } from "../../context/ThemeContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense, lazy } from "react";
 import Aos from "aos";
 import "aos/dist/aos.css";
 import { useAuth } from "../../context/AuthContext";
@@ -27,11 +27,20 @@ import { getDashboardAnalytics } from "../../services/api";
 import {
   CreateInvoice,
   InvoiceList,
-  Sales,
-  SalesOrder,
-  SalesReturns,
-  ProformaInvoice,
+  CreateSales,
+  CreateSalesOrder,
+  CreateSalesReturns,
+  CreateProformaInvoice,
 } from "../pos";
+
+const SalesList = lazy(() => import("../pos/sales/SalesList"));
+const SalesOrderList = lazy(() => import("../pos/sales-order/SalesOrderList"));
+const SalesReturnsList = lazy(() =>
+  import("../pos/sales-returns/SalesReturnsList")
+);
+const ProformaInvoiceList = lazy(() =>
+  import("../pos/proforma-invoice/ProformaInvoiceList")
+);
 
 const stats = [
   {
@@ -378,15 +387,50 @@ function Dashboard() {
               {/* POS Routes */}
               <Route path="/pos/invoice/create" element={<CreateInvoice />} />
               <Route path="/pos/invoice/list" element={<InvoiceList />} />
-              <Route path="/pos/sales/create" element={<Sales />} />
-              <Route path="/pos/sales-order/create" element={<SalesOrder />} />
+              <Route path="/pos/sales/create" element={<CreateSales />} />
+              <Route
+                path="/pos/sales/list"
+                element={
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <SalesList />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/pos/sales-order/create"
+                element={<CreateSalesOrder />}
+              />
+              <Route
+                path="/pos/sales-order/list"
+                element={
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <SalesOrderList />
+                  </Suspense>
+                }
+              />
               <Route
                 path="/pos/sales-returns/create"
-                element={<SalesReturns />}
+                element={<CreateSalesReturns />}
+              />
+              <Route
+                path="/pos/sales-returns/list"
+                element={
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <SalesReturnsList />
+                  </Suspense>
+                }
               />
               <Route
                 path="/pos/proforma-invoice/create"
-                element={<ProformaInvoice />}
+                element={<CreateProformaInvoice />}
+              />
+              <Route
+                path="/pos/proforma-invoice/list"
+                element={
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <ProformaInvoiceList />
+                  </Suspense>
+                }
               />
             </Routes>
           </div>

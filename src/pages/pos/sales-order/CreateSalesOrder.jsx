@@ -1,8 +1,8 @@
 import React from "react";
-import POSForm from "../../components/pos/POSForm";
-import { salesOrderConfig } from "../../components/pos/configs/salesOrderConfig";
+import POSForm from "../../../components/pos/POSForm";
+import { salesOrderConfig } from "../../../components/pos/configs/salesOrderConfig";
 
-const SalesOrder = () => {
+const CreateSalesOrder = () => {
   const breadcrumbs = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Sales Order" },
@@ -24,4 +24,4 @@ const SalesOrder = () => {
   );
 };
 
-export default SalesOrder;
+export default CreateSalesOrder;

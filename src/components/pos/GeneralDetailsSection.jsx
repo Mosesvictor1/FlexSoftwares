@@ -7,6 +7,24 @@ const GeneralDetailsSection = ({ formData, handleFormChange }) => (
       General Details
     </h2>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Voucher Number */}
+      <div className="relative">
+        <label
+          htmlFor="Vno"
+          className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
+        >
+          Voucher Number
+        </label>
+        <input
+          type="text"
+          name="Vno"
+          id="Vno"
+          value={formData.Vno}
+          onChange={handleFormChange}
+          className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
+        />
+      </div>
+
       {/* Transaction Date */}
       <div className="relative">
         <label
@@ -27,7 +45,7 @@ const GeneralDetailsSection = ({ formData, handleFormChange }) => (
       </div>
 
       {/* Account Year */}
-      <div className="relative">
+      {/* <div className="relative">
         <label
           htmlFor="AcctYear"
           className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
@@ -42,25 +60,7 @@ const GeneralDetailsSection = ({ formData, handleFormChange }) => (
           onChange={handleFormChange}
           className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
         />
-      </div>
-
-      {/* Voucher Number */}
-      <div className="relative">
-        <label
-          htmlFor="Vno"
-          className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
-        >
-          Voucher Number
-        </label>
-        <input
-          type="text"
-          name="Vno"
-          id="Vno"
-          value={formData.Vno}
-          onChange={handleFormChange}
-          className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 pt-4 px-3"
-        />
-      </div>
+      </div> */}
 
       {/* Sales Order */}
       <div className="relative">

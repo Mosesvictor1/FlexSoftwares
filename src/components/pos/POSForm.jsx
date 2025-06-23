@@ -301,6 +301,8 @@ const POSForm = ({
           </div>
         )}
 
+
+
         {/* Empties Items Section */}
         {shouldShowSection("empties") && (
           <EmptiesItemsSection
