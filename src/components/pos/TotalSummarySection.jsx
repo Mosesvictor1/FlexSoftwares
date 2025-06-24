@@ -6,15 +6,15 @@ const TotalSummarySection = ({
   calculateTotalPayable,
 }) => (
   <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 sm:p-8 mt-8">
-    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+    <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-6">
       Total Summary
     </h2>
     <div className="space-y-5">
       <div className="flex justify-between items-center">
-        <span className="text-lg font-medium text-gray-700 dark:text-gray-300">
+        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
           Sub Total:
         </span>
-        <span className="text-lg font-semibold text-gray-900 dark:text-white">
+        <span className="text-md font-semibold text-gray-900 dark:text-white">
           {parseFloat(formData.TotalAmountItems).toFixed(2)}
         </span>
       </div>
@@ -22,7 +22,7 @@ const TotalSummarySection = ({
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
         <label
           htmlFor="VATAmount"
-          className="text-sm md:text-lg font-medium text-gray-700 dark:text-gray-300"
+          className="text-sm md:text-md font-medium text-gray-700 dark:text-gray-300"
         >
           VAT Amount:
         </label>
@@ -41,7 +41,7 @@ const TotalSummarySection = ({
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
         <label
           htmlFor="DiscountAmount"
-          className="text-sm md:text-lg font-medium text-gray-700 dark:text-gray-300"
+          className="text-sm md:text-md font-medium text-gray-700 dark:text-gray-300"
         >
           Discount Amount:
         </label>
@@ -60,7 +60,7 @@ const TotalSummarySection = ({
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
         <label
           htmlFor="Commission"
-          className="text-sm md:text-lg font-medium text-gray-700 dark:text-gray-300"
+          className="text-sm md:text-md font-medium text-gray-700 dark:text-gray-300"
         >
           Commission:
         </label>
@@ -79,7 +79,7 @@ const TotalSummarySection = ({
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
         <label
           htmlFor="ExtraChargeAmount"
-          className="text-sm md:text-lg font-medium text-gray-700 dark:text-gray-300"
+          className="text-sm md:text-md font-medium text-gray-700 dark:text-gray-300"
         >
           Extra Charges:
         </label>
@@ -96,7 +96,7 @@ const TotalSummarySection = ({
       </div>
       {/* Total Payable */}
       <div className="flex justify-between items-center border-t pt-4 border-gray-200 dark:border-gray-700">
-        <span className="text-md md:text-xl font-semibold text-gray-900 dark:text-white">
+        <span className="text-md md:text-lg font-semibold text-gray-900 dark:text-white">
           Total Payable:
         </span>
         <span className="text-md md:text-xl font-bold text-blue-600 dark:text-blue-400">

@@ -179,67 +179,153 @@ const POSForm = ({
       <h1 className="text-2xl font-semibold mb-6">{config.title || title}</h1>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Customer Section */}
-        {shouldShowSection("customer") && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-md md:w-1/2 shadow p-4 mb-6 relative">
-            <div className="flex justify-between items-start">
-              <div className="w-full">
-                <div className="text-gray-500 font-semibold mb-1 text-xs md:text-sm">
-                  Customer:
+        {/* Customer and Payment Details Sections Side by Side */}
+        {shouldShowSection("customer") && shouldShowSection("payment") ? (
+          <div className="flex flex-col md:flex-row gap-6 mb-6">
+            <div className="flex-1">
+              {/* Customer Section */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg w-full shadow p-4 relative h-60">
+                <div className="flex justify-between items-start">
+                  <div className="w-full">
+                    <div className="text-gray-500 font-bold mb-1 text-xs md:text-lg mt-6">
+                      Customer:
+                    </div>
+                    {selectedCustomer ? (
+                      <>
+                        <div className="font-bold text-sm md:text-base break-words">
+                          {selectedCustomer.name}
+                        </div>
+                        <div className="text-xs md:text-sm text-green-600 font-medium break-words">
+                          {selectedCustomer.company}
+                        </div>
+                        <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
+                          {selectedCustomer.address}
+                        </div>
+                        <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
+                          {selectedCustomer.phone}
+                        </div>
+                      </>
+                    ) : (
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-xs md:text-sm focus:outline-none focus:ring focus:border-blue-400"
+                        placeholder="Enter customer name (walk-in)"
+                        value={manualCustomerName}
+                        onChange={(e) => setManualCustomerName(e.target.value)}
+                      />
+                    )}
+                  </div>
+                  <div className="flex flex-col items-end gap-2 ml-2">
+                    {selectedCustomer && (
+                      <button
+                        className="text-gray-400 hover:text-red-500 p-1"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSelectedCustomer(null);
+                        }}
+                        aria-label="Clear Customer"
+                        type="button"
+                      >
+                        <X />
+                      </button>
+                    )}
+                    <button
+                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCustomerModalOpen(true);
+                      }}
+                      aria-label="Select Customer"
+                      type="button"
+                    >
+                      <Pencil />
+                    </button>
+                  </div>
                 </div>
-                {selectedCustomer ? (
-                  <>
-                    <div className="font-bold text-sm md:text-base break-words">
-                      {selectedCustomer.name}
-                    </div>
-                    <div className="text-xs md:text-sm text-green-600 font-medium break-words">
-                      {selectedCustomer.company}
-                    </div>
-                    <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
-                      {selectedCustomer.address}
-                    </div>
-                    <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
-                      {selectedCustomer.phone}
-                    </div>
-                  </>
-                ) : (
-                  <input
-                    type="text"
-                    className="w-full border border-gray-300 rounded px-3 py-2 text-xs md:text-sm focus:outline-none focus:ring focus:border-blue-400"
-                    placeholder="Enter customer name (walk-in)"
-                    value={manualCustomerName}
-                    onChange={(e) => setManualCustomerName(e.target.value)}
-                  />
-                )}
-              </div>
-              <div className="flex flex-col items-end gap-2 ml-2">
-                {selectedCustomer && (
-                  <button
-                    className="text-gray-400 hover:text-red-500 p-1"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setSelectedCustomer(null);
-                    }}
-                    aria-label="Clear Customer"
-                    type="button"
-                  >
-                    <X />
-                  </button>
-                )}
-                <button
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCustomerModalOpen(true);
-                  }}
-                  aria-label="Select Customer"
-                  type="button"
-                >
-                  <Pencil />
-                </button>
               </div>
             </div>
+            <div className="flex-1">
+              {/* Payment Details Section */}
+              <PaymentDetailsSection
+                formData={formData}
+                handleFormChange={handleFormChange}
+                config={config}
+              />
+            </div>
           </div>
+        ) : (
+          <>
+            {/* Customer Section (if only customer is shown) */}
+            {shouldShowSection("customer") && (
+              <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-md md:w-1/2 shadow p-4 mb-6 relative">
+                <div className="flex justify-between items-start">
+                  <div className="w-full">
+                    <div className="text-gray-500 font-semibold mb-1 text-xs md:text-sm">
+                      Customer:
+                    </div>
+                    {selectedCustomer ? (
+                      <>
+                        <div className="font-bold text-sm md:text-base break-words">
+                          {selectedCustomer.name}
+                        </div>
+                        <div className="text-xs md:text-sm text-green-600 font-medium break-words">
+                          {selectedCustomer.company}
+                        </div>
+                        <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
+                          {selectedCustomer.address}
+                        </div>
+                        <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
+                          {selectedCustomer.phone}
+                        </div>
+                      </>
+                    ) : (
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-xs md:text-sm focus:outline-none focus:ring focus:border-blue-400"
+                        placeholder="Enter customer name (walk-in)"
+                        value={manualCustomerName}
+                        onChange={(e) => setManualCustomerName(e.target.value)}
+                      />
+                    )}
+                  </div>
+                  <div className="flex flex-col items-end gap-2 ml-2">
+                    {selectedCustomer && (
+                      <button
+                        className="text-gray-400 hover:text-red-500 p-1"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSelectedCustomer(null);
+                        }}
+                        aria-label="Clear Customer"
+                        type="button"
+                      >
+                        <X />
+                      </button>
+                    )}
+                    <button
+                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCustomerModalOpen(true);
+                      }}
+                      aria-label="Select Customer"
+                      type="button"
+                    >
+                      <Pencil />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* Payment Details Section (if only payment is shown) */}
+            {shouldShowSection("payment") && (
+              <PaymentDetailsSection
+                formData={formData}
+                handleFormChange={handleFormChange}
+                config={config}
+              />
+            )}
+          </>
         )}
 
         <CustomerSelectModal
@@ -251,24 +337,6 @@ const POSForm = ({
         {/* General Details Section */}
         {shouldShowSection("general") && (
           <GeneralDetailsSection
-            formData={formData}
-            handleFormChange={handleFormChange}
-            config={config}
-          />
-        )}
-
-        {/* Invoice Items Section */}
-        {shouldShowSection("items") && (
-          <InvoiceItemsSection
-            formData={formData}
-            setFormData={setFormData}
-            config={config}
-          />
-        )}
-
-        {/* Payment Details Section */}
-        {shouldShowSection("payment") && (
-          <PaymentDetailsSection
             formData={formData}
             handleFormChange={handleFormChange}
             config={config}
@@ -301,7 +369,14 @@ const POSForm = ({
           </div>
         )}
 
-
+        {/* Invoice Items Section */}
+        {shouldShowSection("items") && (
+          <InvoiceItemsSection
+            formData={formData}
+            setFormData={setFormData}
+            config={config}
+          />
+        )}
 
         {/* Empties Items Section */}
         {shouldShowSection("empties") && (
