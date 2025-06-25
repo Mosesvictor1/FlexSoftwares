@@ -1,7 +1,7 @@
 import React from "react";
 import POSForm from "../../../components/pos/POSForm";
 import { invoiceConfig } from "../../../components/pos/configs/invoiceConfig";
-import { createInvoice } from "../../../services/api";
+import { useTransactionDropdowns } from "../../../hooks/useTransactionDropdowns";
 
 const CreateInvoice = () => {
   const breadcrumbs = [
@@ -10,24 +10,29 @@ const CreateInvoice = () => {
     { label: "Create Invoice" },
   ];
 
+  const { dropdownData, loading, error } = useTransactionDropdowns(
+    invoiceConfig.transSource
+  );
+
   const handleSubmit = async (formData) => {
     try {
       console.log("Submitting invoice:", formData);
-      const response = await createInvoice(formData);
-      console.log("Invoice created successfully:", response);
+      // const response = await createInvoice(formData);
       alert("Invoice created successfully!");
-      // You can redirect to invoice list or reset form here
-    } catch (error) {
-      console.error("Failed to create invoice:", error);
+    } catch {
       alert("Failed to create invoice. Please try again.");
     }
   };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <POSForm
       config={invoiceConfig}
       onSubmit={handleSubmit}
       breadcrumbs={breadcrumbs}
+      dropdownData={dropdownData}
     />
   );
 };

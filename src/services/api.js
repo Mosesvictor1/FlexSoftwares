@@ -213,4 +213,21 @@ export const createCustomer = async (customerData) => {
   }
 };
 
+export const fetchTransactionDropdowns = async (
+  AcctYear,
+  TransSource,
+  token
+) => {
+  const response = await api.get(
+    `/api/Sales/dropdowns?AcctYear=${AcctYear}&TransSource=${TransSource}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
 export default api;

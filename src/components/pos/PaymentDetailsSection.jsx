@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ChevronDown, X, Plus } from "lucide-react";
 
-const PAYMENT_MODES = [
+const STATIC_PAYMENT_MODES = [
   "Cash",
   "Card",
   "Transfer",
@@ -13,13 +13,33 @@ const PAYMENT_MODES = [
   "Others",
 ];
 
-const PaymentDetailsSection = ({ formData, handleFormChange, config = {} }) => {
-  // Assume total amount is in formData.TotalAmount or config.totalAmount
-  const totalAmount = formData.TotalAmountItems || config.totalAmount || 0;
+const PaymentDetailsSection = ({
+  formData,
+  handleFormChange,
+  config = {},
+  dropdownData = {},
+}) => {
+  // Use payment modes from dropdownData if available, else fallback to static list
+  const paymentModes = dropdownData?.PaymentModes?.length
+    ? dropdownData.PaymentModes.filter((m) => m.EntryCode && m.Description)
+    : STATIC_PAYMENT_MODES.map((mode) => ({
+        EntryCode: mode,
+        Description: mode,
+      }));
+
+  // Use TotalAmountItems as the main total for payment splits
+  const totalAmount =
+    formData.TotalAmountItems ||
+    formData.TotalAmount ||
+    config.totalAmount ||
+    0;
 
   // Parse PaymentModeSplitStr if present, else default to one split
   const parseSplits = (splitStr) => {
-    if (!splitStr) return [{ mode: "Cash", amount: totalAmount }];
+    if (!splitStr)
+      return [
+        { mode: paymentModes[0]?.EntryCode || "Cash", amount: totalAmount },
+      ];
     return splitStr.split("|").map((part) => {
       const [mode, amount] = part.split("=");
       return { mode, amount: Number(amount) };
@@ -30,13 +50,15 @@ const PaymentDetailsSection = ({ formData, handleFormChange, config = {} }) => {
     parseSplits(formData.PaymentModeSplitStr)
   );
 
-  // Reset splits to Cash=totalAmount if totalAmount changes and no split string is set
+  // Reset splits to default if totalAmount changes and no split string is set
   useEffect(() => {
     if (!formData.PaymentModeSplitStr) {
-      setSplits([{ mode: "Cash", amount: totalAmount }]);
+      setSplits([
+        { mode: paymentModes[0]?.EntryCode || "Cash", amount: totalAmount },
+      ]);
     }
     // eslint-disable-next-line
-  }, [totalAmount]);
+  }, [totalAmount, paymentModes]);
 
   // Update PaymentModeSplitStr in parent form whenever splits change
   useEffect(() => {
@@ -65,7 +87,9 @@ const PaymentDetailsSection = ({ formData, handleFormChange, config = {} }) => {
       ...splits,
       {
         mode:
-          PAYMENT_MODES.find((m) => !splits.some((s) => s.mode === m)) ||
+          paymentModes.find((m) => !splits.some((s) => s.mode === m.EntryCode))
+            ?.EntryCode ||
+          paymentModes[0]?.EntryCode ||
           "Others",
         amount: remaining > 0 ? remaining : 0,
       },
@@ -91,7 +115,7 @@ const PaymentDetailsSection = ({ formData, handleFormChange, config = {} }) => {
   // Calculate total split
   const totalSplit = splits.reduce((sum, s) => sum + Number(s.amount), 0);
   const canAddMore =
-    totalSplit < totalAmount && splits.length < PAYMENT_MODES.length;
+    totalSplit < totalAmount && splits.length < paymentModes.length;
 
   return (
     <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8">
@@ -107,18 +131,18 @@ const PaymentDetailsSection = ({ formData, handleFormChange, config = {} }) => {
                 value={split.mode}
                 onChange={(e) => updateSplit(idx, "mode", e.target.value)}
                 disabled={
-                  splits.length > 1 && PAYMENT_MODES.length === splits.length
+                  splits.length > 1 && paymentModes.length === splits.length
                 }
               >
-                {PAYMENT_MODES.map((mode) => (
+                {paymentModes.map((mode) => (
                   <option
-                    key={mode}
-                    value={mode}
+                    key={mode.EntryCode}
+                    value={mode.EntryCode}
                     disabled={splits.some(
-                      (s, i) => s.mode === mode && i !== idx
+                      (s, i) => s.mode === mode.EntryCode && i !== idx
                     )}
                   >
-                    {mode}
+                    {mode.Description}
                   </option>
                 ))}
               </select>

@@ -24,24 +24,26 @@ const POSForm = ({
   onSubmit,
   breadcrumbs,
   title = "Create New Transaction",
+  dropdownData = {},
 }) => {
   const { currentAccountingYear } = useAuth();
   const [formData, setFormData] = useState({
     TransSource: config.transSource || "Sales",
     AcctYear: currentAccountingYear || new Date().getFullYear().toString(),
-    Vno: "",
-    TransDate: new Date().toISOString().split("T")[0],
+    Vno: dropdownData?.VoucherNumber || "",
+    TransDate:
+      dropdownData?.CurrentDate || new Date().toISOString().split("T")[0],
     ReturnReason: "",
     TotalAmountItems: 0,
     VATAmount: 0,
     DiscountAmount: 0,
     Commission: 0,
-    CustomerType: "Retail",
-    BaseCurrencyCode: "NGN",
+    CustomerType: dropdownData?.CustomerType || "Retail",
+    BaseCurrencyCode: dropdownData?.DefaultCurrencyCode || "NGN",
     ExchangeRate: 1,
     ItemDesc: "",
-    PaymentMode: "Cash",
-    LocationCode: "MAIN",
+    PaymentMode: dropdownData?.DefaultPaymentMode || "Cash",
+    LocationCode: dropdownData?.DefaultLocation || "MAIN",
     CreatedBy: "admin",
     DateTimeString: new Date().toISOString(),
     ExtraChargeAmount: 0,
@@ -54,6 +56,7 @@ const POSForm = ({
     EmptiesItems: [],
     Status: "Draft",
     DueDate: "",
+    CustomerCode: dropdownData?.CustomerCode || "",
   });
 
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
@@ -120,6 +123,21 @@ const POSForm = ({
       AcctYear: currentAccountingYear || new Date().getFullYear().toString(),
     }));
   }, [currentAccountingYear]);
+
+  // Update formData defaults if dropdownData changes
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      Vno: dropdownData?.VoucherNumber || prev.Vno,
+      TransDate: dropdownData?.CurrentDate || prev.TransDate,
+      CustomerType: dropdownData?.CustomerType || prev.CustomerType,
+      BaseCurrencyCode:
+        dropdownData?.DefaultCurrencyCode || prev.BaseCurrencyCode,
+      PaymentMode: dropdownData?.DefaultPaymentMode || prev.PaymentMode,
+      LocationCode: dropdownData?.DefaultLocation || prev.LocationCode,
+      CustomerCode: dropdownData?.CustomerCode || prev.CustomerCode,
+    }));
+  }, [dropdownData]);
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -250,6 +268,7 @@ const POSForm = ({
                 formData={formData}
                 handleFormChange={handleFormChange}
                 config={config}
+                dropdownData={dropdownData}
               />
             </div>
           </div>
@@ -323,6 +342,7 @@ const POSForm = ({
                 formData={formData}
                 handleFormChange={handleFormChange}
                 config={config}
+                dropdownData={dropdownData}
               />
             )}
           </>
@@ -340,6 +360,7 @@ const POSForm = ({
             formData={formData}
             handleFormChange={handleFormChange}
             config={config}
+            dropdownData={dropdownData}
           />
         )}
 
