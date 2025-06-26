@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ChevronDown, X, Plus } from "lucide-react";
 
-const STATIC_PAYMENT_MODES = [
+const STATIC_PAYMENT_MODE = [
   "Cash",
   "Card",
   "Transfer",
@@ -22,10 +22,7 @@ const PaymentDetailsSection = ({
   // Use payment modes from dropdownData if available, else fallback to static list
   const paymentModes = dropdownData?.PaymentModes?.length
     ? dropdownData.PaymentModes.filter((m) => m.EntryCode && m.Description)
-    : STATIC_PAYMENT_MODES.map((mode) => ({
-        EntryCode: mode,
-        Description: mode,
-      }));
+    : []
 
   // Use TotalAmountItems as the main total for payment splits
   const totalAmount =

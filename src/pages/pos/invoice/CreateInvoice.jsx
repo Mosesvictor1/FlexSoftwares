@@ -2,6 +2,7 @@ import React from "react";
 import POSForm from "../../../components/pos/POSForm";
 import { invoiceConfig } from "../../../components/pos/configs/invoiceConfig";
 import { useTransactionDropdowns } from "../../../hooks/useTransactionDropdowns";
+import Spinner from "../../../components/ui/Spinner";
 
 const CreateInvoice = () => {
   const breadcrumbs = [
@@ -24,7 +25,13 @@ const CreateInvoice = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="flex flex-1 h-60 items-center justify-center gap-6">
+        <Spinner />
+        <h2 className="font-bold">Loading Data...</h2>
+      </div>
+    );
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (

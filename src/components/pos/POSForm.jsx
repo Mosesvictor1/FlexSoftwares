@@ -57,6 +57,7 @@ const POSForm = ({
     Status: "Draft",
     DueDate: "",
     CustomerCode: dropdownData?.CustomerCode || "",
+    CustomerName: dropdownData?.CustomerCode || "",
   });
 
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
@@ -136,6 +137,7 @@ const POSForm = ({
       PaymentMode: dropdownData?.DefaultPaymentMode || prev.PaymentMode,
       LocationCode: dropdownData?.DefaultLocation || prev.LocationCode,
       CustomerCode: dropdownData?.CustomerCode || prev.CustomerCode,
+      CustomerName: dropdownData?.CustomerCode || prev.CustomerName,
     }));
   }, [dropdownData]);
 
@@ -228,7 +230,7 @@ const POSForm = ({
                         type="text"
                         className="w-full border border-gray-300 rounded px-3 py-2 text-xs md:text-sm focus:outline-none focus:ring focus:border-blue-400"
                         placeholder="Enter customer name (walk-in)"
-                        value={manualCustomerName}
+                        value={manualCustomerName || formData.CustomerName}
                         onChange={(e) => setManualCustomerName(e.target.value)}
                       />
                     )}
@@ -302,7 +304,7 @@ const POSForm = ({
                         type="text"
                         className="w-full border border-gray-300 rounded px-3 py-2 text-xs md:text-sm focus:outline-none focus:ring focus:border-blue-400"
                         placeholder="Enter customer name (walk-in)"
-                        value={manualCustomerName}
+                        value={manualCustomerName || formData.CustomerName}
                         onChange={(e) => setManualCustomerName(e.target.value)}
                       />
                     )}

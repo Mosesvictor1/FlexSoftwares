@@ -20,7 +20,7 @@ export function useTransactionDropdowns(transSource) {
           transSource,
           token
         );
-        console.log(transSource, "==", data.data)
+        console.log(transSource, "==", data, "data.data==", data.data)
         setDropdownData(data.data);
       } catch {
         setError("Failed to load dropdown data");
