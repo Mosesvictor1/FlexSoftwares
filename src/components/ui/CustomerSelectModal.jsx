@@ -1,6 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Modal from "./Modal";
-import { getCustomers, createCustomer } from "../../services/api";
+import { createCustomer } from "../../services/api";
+import { usePaginatedCustomers } from "../../hooks/usePaginatedCustomers";
+
+// Debounce hook
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = React.useState(value);
+  React.useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+}
 
 const CustomerSelectModal = ({
   isOpen,
@@ -12,10 +23,9 @@ const CustomerSelectModal = ({
   maxHeight = "max-h-80",
 }) => {
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
   const [selectedId, setSelectedId] = useState(null);
-  const [customers, setCustomers] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [newCustomer, setNewCustomer] = useState({
     name: "",
@@ -25,84 +35,21 @@ const CustomerSelectModal = ({
     email: "",
   });
 
-  const initialMockCustomers = [
-    {
-      id: 1,
-      name: "Jayvion Simon",
-      company: "Gleichner, Mueller and Tromp",
-      companyUrl: "#",
-      address: "19034 Verna Unions Apt. 164 - Honolulu, RI / 87535",
-      phone: "+1 202-555-0143",
-      isDefault: true,
-    },
-    {
-      id: 2,
-      name: "Lucian Obrien",
-      company: "Nikolaus - Leuschke",
-      companyUrl: "#",
-      address: "1147 Rohan Drive Suite 819 - Burlington, VT / 82021",
-      phone: "+1 416-555-0198",
-      isDefault: false,
-    },
-    {
-      id: 3,
-      name: "Deja Brady",
-      company: "Hegmann, Kreiger and Bayer",
-      companyUrl: "#",
-      address: "18605 Thompson Circle Apt. 086 - Idaho Falls, WV / 50337",
-      phone: "+44 20 7946 0958",
-      isDefault: false,
-    },
-    {
-      id: 4,
-      name: "Harrison Stein",
-      company: "Grimes Inc",
-      companyUrl: "#",
-      address: "110 Lamar Station Apt. 730 - Hagerstown, OK / 49808",
-      phone: "+61 2 9876 5432",
-      isDefault: false,
-    },
-  ];
-  
+  // Use paginated customers hook
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    error: queryError,
+  } = usePaginatedCustomers(debouncedSearch);
 
-  // Fetch customers when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      fetchCustomers();
-    }
-  }, [isOpen]);
-
-  // Fetch customers from API
-  const fetchCustomers = async (searchTerm = "") => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      // const response = await getCustomers(searchTerm);
-      // setCustomers(response.data || response || []);
-      setCustomers(initialMockCustomers)
-    } catch (error) {
-      console.error("Failed to fetch customers:", error);
-      setError("Failed to load customers. Please try again.");
-      // Fallback to empty array
-      setCustomers([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Handle search with debounce
-  useEffect(() => {
-    if (!allowSearch) return;
-
-    const timeoutId = setTimeout(() => {
-      fetchCustomers(search);
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [search, allowSearch]);
+  // Combine all customers from all pages
+  const allCustomers = data?.pages.flatMap((page) => page.customers) || [];
 
   const handleSelect = (customer) => {
-    setSelectedId(customer.id);
+    setSelectedId(customer.CustomerNo);
     onSelectCustomer(customer);
     onClose();
   };
@@ -112,16 +59,10 @@ const CustomerSelectModal = ({
     if (!newCustomer.name.trim()) return;
 
     try {
-      setIsLoading(true);
       setError(null);
-
       const response = await createCustomer(newCustomer);
       const createdCustomer = response.data || response;
-
-      // Add to local state
-      setCustomers((prev) => [...prev, createdCustomer]);
-
-      // Reset form
+      // Optionally, you could refetch the customer list here
       setShowAddForm(false);
       setNewCustomer({
         name: "",
@@ -130,28 +71,14 @@ const CustomerSelectModal = ({
         phone: "",
         email: "",
       });
-
-      // Select the new customer
-      setSelectedId(createdCustomer.id);
+      setSelectedId(createdCustomer.CustomerNo);
       onSelectCustomer(createdCustomer);
       onClose();
     } catch (error) {
       console.error("Failed to create customer:", error);
       setError("Failed to create customer. Please try again.");
-    } finally {
-      setIsLoading(false);
     }
   };
-
-  const filteredCustomers = customers.filter((customer) =>
-    [
-      customer.name,
-      customer.company,
-      customer.address,
-      customer.phone,
-      customer.email,
-    ].some((field) => field?.toLowerCase().includes(search.toLowerCase()))
-  );
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -167,9 +94,11 @@ const CustomerSelectModal = ({
         )}
       </div>
 
-      {error && (
+      {(error || queryError) && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-          {error}
+          {error ||
+            queryError?.message ||
+            "Failed to load customers. Please try again."}
         </div>
       )}
 
@@ -185,7 +114,6 @@ const CustomerSelectModal = ({
                 setNewCustomer({ ...newCustomer, name: e.target.value })
               }
               required
-              disabled={isLoading}
             />
           </div>
           <div>
@@ -197,7 +125,6 @@ const CustomerSelectModal = ({
               onChange={(e) =>
                 setNewCustomer({ ...newCustomer, company: e.target.value })
               }
-              disabled={isLoading}
             />
           </div>
           <div>
@@ -209,7 +136,6 @@ const CustomerSelectModal = ({
               onChange={(e) =>
                 setNewCustomer({ ...newCustomer, address: e.target.value })
               }
-              disabled={isLoading}
             />
           </div>
           <div>
@@ -221,7 +147,6 @@ const CustomerSelectModal = ({
               onChange={(e) =>
                 setNewCustomer({ ...newCustomer, phone: e.target.value })
               }
-              disabled={isLoading}
             />
           </div>
           <div>
@@ -233,7 +158,6 @@ const CustomerSelectModal = ({
               onChange={(e) =>
                 setNewCustomer({ ...newCustomer, email: e.target.value })
               }
-              disabled={isLoading}
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">
@@ -241,16 +165,14 @@ const CustomerSelectModal = ({
               type="button"
               className="px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium"
               onClick={() => setShowAddForm(false)}
-              disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
               className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-50"
-              disabled={isLoading}
             >
-              {isLoading ? "Saving..." : "Save"}
+              Save
             </button>
           </div>
         </form>
@@ -264,67 +186,78 @@ const CustomerSelectModal = ({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:border-blue-400 text-sm"
-                disabled={isLoading}
+                disabled={isFetching}
               />
             </div>
           )}
 
           <div className={`${maxHeight} overflow-y-auto space-y-2`}>
-            {isLoading ? (
+            {isFetching && !isFetchingNextPage && allCustomers.length === 0 ? (
               <div className="flex justify-center items-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
               </div>
-            ) : filteredCustomers.length === 0 ? (
+            ) : allCustomers.length === 0 ? (
               <div className="text-gray-500 text-sm text-center py-8">
                 {search
                   ? "No customers found matching your search."
                   : "No customers available."}
               </div>
             ) : (
-              filteredCustomers.map((customer) => (
+              allCustomers.map((customer) => (
                 <div
-                  key={customer.id}
+                  key={customer.CustomerNo || customer.Surname}
                   className={`p-4 rounded-lg cursor-pointer transition border flex flex-col gap-1 ${
-                    selectedId === customer.id
+                    selectedId === customer.CustomerNo
                       ? "bg-blue-50 border-blue-400"
                       : "bg-white dark:bg-gray-700 border-transparent hover:bg-gray-100 dark:hover:bg-blue-900"
                   }`}
                   onClick={() => handleSelect(customer)}
                 >
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
                     <span className="font-semibold text-base text-gray-900 dark:text-white">
-                      {customer.name}
+                      {customer.Surname}
+                      {customer.FirstName ? ` ${customer.FirstName}` : ""}
                     </span>
-                    {customer.isDefault && (
-                      <span className="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded">
-                        Default
-                      </span>
-                    )}
                   </div>
-                  {customer.company && (
-                    <div className="text-green-600 text-sm font-medium">
-                      {customer.company}
-                    </div>
-                  )}
-                  {customer.address && (
-                    <div className="text-xs text-gray-600 dark:text-gray-300">
-                      {customer.address}
-                    </div>
-                  )}
-                  {customer.phone && (
-                    <div className="text-xs text-gray-600 dark:text-gray-300">
-                      {customer.phone}
-                    </div>
-                  )}
-                  {customer.email && (
-                    <div className="text-xs text-gray-600 dark:text-gray-300">
-                      {customer.email}
-                    </div>
-                  )}
+                  <div className="text-xs text-gray-600 dark:text-gray-300 flex flex-col gap-0.5">
+                    <span>
+                      <span className="font-medium">Customer No:</span>{" "}
+                      {customer.CustomerNo || "-"}
+                    </span>
+                    <span>
+                      <span className="font-medium">Surname:</span>{" "}
+                      {customer.Surname || "-"}
+                    </span>
+                    <span>
+                      <span className="font-medium">First Name:</span>{" "}
+                      {customer.FirstName || "-"}
+                    </span>
+                    <span>
+                      <span className="font-medium">Phone:</span>{" "}
+                      {customer.ContactPhone || "-"}
+                    </span>
+                    <span>
+                      <span className="font-medium">Email:</span>{" "}
+                      {customer.Email || "-"}
+                    </span>
+                  </div>
                 </div>
               ))
             )}
           </div>
+          {/* Load More Button */}
+          {hasNextPage && !isFetching && (
+            <div className="flex justify-center mt-4">
+              <button
+                type="button"
+                className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-50"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+              >
+                {isFetchingNextPage ? "Loading..." : "Load More"}
+              </button>
+            </div>
+          )}
         </>
       )}
     </Modal>

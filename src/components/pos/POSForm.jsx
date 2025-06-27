@@ -94,10 +94,12 @@ const POSForm = ({
     if (selectedCustomer) {
       setFormData((prev) => ({
         ...prev,
-        CustomerName: selectedCustomer.name,
-        CustomerCompany: selectedCustomer.company,
-        CustomerAddress: selectedCustomer.address,
-        CustomerPhone: selectedCustomer.phone,
+        CustomerName: `${selectedCustomer.Surname || ""}${
+          selectedCustomer.FirstName ? " " + selectedCustomer.FirstName : ""
+        }`,
+        CustomerCode: selectedCustomer.CustomerNo,
+        CustomerPhone: selectedCustomer.ContactPhone,
+        CustomerEmail: selectedCustomer.Email,
       }));
     }
   }, [selectedCustomer]);
@@ -213,16 +215,22 @@ const POSForm = ({
                     {selectedCustomer ? (
                       <>
                         <div className="font-bold text-sm md:text-base break-words">
-                          {selectedCustomer.name}
-                        </div>
-                        <div className="text-xs md:text-sm text-green-600 font-medium break-words">
-                          {selectedCustomer.company}
-                        </div>
-                        <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
-                          {selectedCustomer.address}
+                          {selectedCustomer.Surname}
+                          {selectedCustomer.FirstName
+                            ? ` ${selectedCustomer.FirstName}`
+                            : ""}
                         </div>
                         <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
-                          {selectedCustomer.phone}
+                          <span className="font-medium">Customer No:</span>{" "}
+                          {selectedCustomer.CustomerNo || "-"}
+                        </div>
+                        <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
+                          <span className="font-medium">Phone:</span>{" "}
+                          {selectedCustomer.ContactPhone || "-"}
+                        </div>
+                        <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
+                          <span className="font-medium">Email:</span>{" "}
+                          {selectedCustomer.Email || "-"}
                         </div>
                       </>
                     ) : (
@@ -287,16 +295,22 @@ const POSForm = ({
                     {selectedCustomer ? (
                       <>
                         <div className="font-bold text-sm md:text-base break-words">
-                          {selectedCustomer.name}
-                        </div>
-                        <div className="text-xs md:text-sm text-green-600 font-medium break-words">
-                          {selectedCustomer.company}
-                        </div>
-                        <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
-                          {selectedCustomer.address}
+                          {selectedCustomer.Surname}
+                          {selectedCustomer.FirstName
+                            ? ` ${selectedCustomer.FirstName}`
+                            : ""}
                         </div>
                         <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
-                          {selectedCustomer.phone}
+                          <span className="font-medium">Customer No:</span>{" "}
+                          {selectedCustomer.CustomerNo || "-"}
+                        </div>
+                        <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
+                          <span className="font-medium">Phone:</span>{" "}
+                          {selectedCustomer.ContactPhone || "-"}
+                        </div>
+                        <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 break-words">
+                          <span className="font-medium">Email:</span>{" "}
+                          {selectedCustomer.Email || "-"}
                         </div>
                       </>
                     ) : (

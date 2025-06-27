@@ -230,4 +230,27 @@ export const fetchTransactionDropdowns = async (
   return response.data;
 };
 
+export const fetchCustomersPaginated = async ({
+  searchText = "",
+  pageNumber = 1,
+  token,
+}) => {
+  const response = await api.post(
+    "/api/LookUp/display-all",
+    {
+      ProgName: "Customer",
+      SearchText: searchText,
+      PageNumber: pageNumber,
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    }
+  );
+  console.log("Fetched Customer Response = ", response)
+  return response.data;
+};
+
 export default api;
