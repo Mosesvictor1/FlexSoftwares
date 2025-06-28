@@ -221,16 +221,8 @@ const CustomerSelectModal = ({
                   </div>
                   <div className="text-xs text-gray-600 dark:text-gray-300 flex flex-col gap-0.5">
                     <span>
-                      <span className="font-medium">Customer No:</span>{" "}
-                      {customer.CustomerNo || "-"}
-                    </span>
-                    <span>
                       <span className="font-medium">Surname:</span>{" "}
                       {customer.Surname || "-"}
-                    </span>
-                    <span>
-                      <span className="font-medium">First Name:</span>{" "}
-                      {customer.FirstName || "-"}
                     </span>
                     <span>
                       <span className="font-medium">Phone:</span>{" "}

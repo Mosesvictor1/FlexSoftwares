@@ -163,11 +163,11 @@ function Sidebar() {
           <div
             className={`overflow-hidden transition-all duration-500 ease-in-out ${
               openMenus[item.name]
-                ? "max-h-[500px] opacity-100"
+                ? "max-h-[800px] opacity-100"
                 : "max-h-0 opacity-0"
             }`}
           >
-            <div className="relative ml-4 mt-1 space-y-1">
+            <div className="relative ml-4 mt-1 space-y-1 max-h-[600px] overflow-y-auto">
               {item.children.map((child) => (
                 <div key={child.name} className="relative">
                   {child.children ? (
@@ -187,11 +187,11 @@ function Sidebar() {
                       <div
                         className={`overflow-hidden transition-all duration-500 ease-in-out ${
                           openMenus[child.name]
-                            ? "max-h-[500px] opacity-100"
+                            ? "max-h-[600px] opacity-100"
                             : "max-h-0 opacity-0"
                         }`}
                       >
-                        <div className="relative ml-4 mt-1 space-y-1">
+                        <div className="relative ml-4 mt-1 space-y-1 max-h-[500px] overflow-y-auto">
                           {child.children.map((grandChild) => (
                             <div key={grandChild.name} className="relative">
                               <div className="absolute left-0 top-0 bottom-0 w-4 border-l-2 border-gray-200 dark:border-gray-500"></div>
@@ -244,6 +244,7 @@ function Sidebar() {
             ? "bg-gray-50 text-gray-900 dark:bg-gray-700/50 dark:text-white"
             : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700/50 dark:hover:text-white"
         }`}
+        onClick={() => setIsOpen(false)}
       >
         <item.icon
           className={`h-5 w-5 shrink-0 ${item.color}`}

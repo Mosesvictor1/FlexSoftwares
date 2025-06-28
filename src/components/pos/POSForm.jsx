@@ -233,6 +233,8 @@ const POSForm = ({
                           {selectedCustomer.Email || "-"}
                         </div>
                       </>
+                    ) : config.transSource === "Sales Returns" ? (
+                      <div className="text-red-500 text-sm pt-4">please Select a registered customer for returns</div>
                     ) : (
                       <input
                         type="text"
