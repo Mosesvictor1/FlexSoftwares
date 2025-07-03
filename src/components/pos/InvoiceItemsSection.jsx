@@ -1,65 +1,276 @@
-import React, { useState } from "react";
-import { Plus, Trash2, ChevronDown } from "lucide-react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
+import { Plus, Trash2, Edit2, Search, X, ChevronDown } from "lucide-react";
 
-const defaultItem = {
-  SerialNo: 1,
+// Mock data for categories and items
+const mockCategories = [
+  { code: "BEER", name: "Beer" },
+  { code: "TABLE", name: "Table" },
+  { code: "CHAIR", name: "Chair" },
+  { code: "SOFTDRINK", name: "Soft Drink" },
+];
+
+const mockItems = [
+  {
+    ItemCode: "B001",
+    ItemName: "Heineken Beer",
+    Category: "BEER",
+    Units: ["CTN", "PCS"],
+    SellingPrice: 5000,
+    AltSellingPrice: 450,
+    AltUnit: "PCS",
+  },
+  {
+    ItemCode: "B002",
+    ItemName: "Goldberg 60CL",
+    Category: "BEER",
+    Units: ["CTN", "PCS"],
+    SellingPrice: 4800,
+    AltSellingPrice: 420,
+    AltUnit: "PCS",
+  },
+  {
+    ItemCode: "T001",
+    ItemName: "Wooden Table",
+    Category: "TABLE",
+    Units: ["PCS"],
+    SellingPrice: 12000,
+    AltSellingPrice: 0,
+    AltUnit: "",
+  },
+  {
+    ItemCode: "C001",
+    ItemName: "Plastic Chair",
+    Category: "CHAIR",
+    Units: ["PCS", "DOZ"],
+    SellingPrice: 1500,
+    AltSellingPrice: 16000,
+    AltUnit: "DOZ",
+  },
+  // New mock items, some without alt qty/price
+  {
+    ItemCode: "F001",
+    ItemName: "Fanta 50CL",
+    Category: "SOFTDRINK",
+    Units: ["CTN", "PCS"],
+    SellingPrice: 3000,
+    AltSellingPrice: 0,
+    AltUnit: "",
+  },
+  {
+    ItemCode: "B003",
+    ItemName: "Star Beer",
+    Category: "BEER",
+    Units: ["CTN", "PCS"],
+    SellingPrice: 4700,
+    AltSellingPrice: 0,
+    AltUnit: "",
+  },
+  {
+    ItemCode: "A001",
+    ItemName: "Office Armchair",
+    Category: "CHAIR",
+    Units: ["PCS"],
+    SellingPrice: 8500,
+    AltSellingPrice: 0,
+    AltUnit: "",
+  },
+  {
+    ItemCode: "T002",
+    ItemName: "Glass Table",
+    Category: "TABLE",
+    Units: ["PCS"],
+    SellingPrice: 20000,
+    AltSellingPrice: 0,
+    AltUnit: "",
+  },
+  {
+    ItemCode: "S001",
+    ItemName: "Sprite 50CL",
+    Category: "SOFTDRINK",
+    Units: ["CTN", "PCS"],
+    SellingPrice: 3100,
+    AltSellingPrice: 0,
+    AltUnit: "",
+  },
+  {
+    ItemCode: "B004",
+    ItemName: "Legend Stout",
+    Category: "BEER",
+    Units: ["CTN", "PCS"],
+    SellingPrice: 4900,
+    AltSellingPrice: 430,
+    AltUnit: "PCS",
+  },
+  // ... more mock items
+];
+
+const defaultModalState = {
   ItemCode: "",
-  ItemQty: 1,
-  UnitPrice: 0,
-  AltSellingPrice: 0,
-  LocationCode: "MAIN",
-  ItemAmount: 0,
-  BulkRetFactor: 1,
-  ItemType: "",
-  ItemSize: "",
-  ItemColour: "",
-  DiscountRate: 0,
+  ItemName: "",
+  UnitQuantities: {},
+  UnitPrices: {},
 };
 
-const InvoiceItemsSection = ({ formData, setFormData }) => {
-  const [currentItem, setCurrentItem] = useState(defaultItem);
+// Add a constant for the 'All' value
+const ALL_CATEGORIES = null;
 
-  const handleItemChange = (e) => {
-    const { name, value } = e.target;
-    setCurrentItem((prev) => {
-      const updatedItem = { ...prev, [name]: value };
-      const qty = parseFloat(updatedItem.ItemQty || 0);
-      const price = parseFloat(updatedItem.UnitPrice || 0);
-      updatedItem.ItemAmount = (qty * price).toFixed(2);
-      return updatedItem;
-    });
-  };
+const InvoiceItemsSection = () => {
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalItem, setModalItem] = useState(defaultModalState);
+  const [invoiceItems, setInvoiceItems] = useState([]);
+  const [editIndex, setEditIndex] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [dropdownHovered, setDropdownHovered] = useState(false);
+  const [activeCategoryDropdown, setActiveCategoryDropdown] = useState(false);
+  const categorySelectRef = useRef(null);
+  const categoryDropdownRef = useRef(null);
 
-  const addItem = () => {
-    if (
-      currentItem.ItemCode &&
-      currentItem.ItemQty > 0 &&
-      currentItem.UnitPrice > 0
-    ) {
-      setFormData((prev) => ({
-        ...prev,
-        RecordItems: [
-          ...prev.RecordItems,
-          { ...currentItem, ItemAmount: parseFloat(currentItem.ItemAmount) },
-        ],
-      }));
-      setCurrentItem({
-        ...defaultItem,
-        SerialNo: formData.RecordItems.length + 2, // +2 for next serial
-      });
-    } else {
-      alert(
-        "Please fill in Item Code, Quantity, and Unit Price for the invoice item."
+  // Filtered items for search dropdown (searches all items, ignores category)
+  const searchFilteredItems = useMemo(() => {
+    let items = mockItems;
+    if (searchTerm.trim()) {
+      const term = searchTerm.trim().toLowerCase();
+      items = items.filter(
+        (item) =>
+          item.ItemName.toLowerCase().includes(term) ||
+          item.ItemCode.toLowerCase().includes(term)
       );
     }
+    return items;
+  }, [searchTerm]);
+
+  // Filtered items for category dropdown (filtered by selected category)
+  const categoryFilteredItems = useMemo(() => {
+    if (!selectedCategory) return [];
+    return mockItems.filter((item) => item.Category === selectedCategory);
+  }, [selectedCategory]);
+
+  // Click-away handler for category dropdown
+  useEffect(() => {
+    if (!activeCategoryDropdown) return;
+    function handleClickOutside(event) {
+      if (
+        categorySelectRef.current &&
+        !categorySelectRef.current.contains(event.target) &&
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target)
+      ) {
+        setActiveCategoryDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [activeCategoryDropdown]);
+
+  // Open modal with item details (add or edit)
+  const handleItemClick = (item) => {
+    const unitQuantities = {};
+    const unitPrices = {};
+    item.Units.forEach((unit, idx) => {
+      unitQuantities[unit] = 1;
+      if (idx === 0) {
+        unitPrices[unit] = item.SellingPrice;
+      } else {
+        unitPrices[unit] = item.AltSellingPrice || 0;
+      }
+    });
+    setModalItem({
+      ItemCode: item.ItemCode,
+      ItemName: item.ItemName,
+      UnitQuantities: unitQuantities,
+      UnitPrices: unitPrices,
+    });
+    setEditIndex(null);
+    setModalOpen(true);
   };
 
-  const removeItem = (index) => {
-    setFormData((prev) => ({
+  // Handle modal input changes for unit quantities
+  const handleUnitQtyChange = (unit, value) => {
+    setModalItem((prev) => ({
       ...prev,
-      RecordItems: prev.RecordItems.filter((_, i) => i !== index),
+      UnitQuantities: { ...prev.UnitQuantities, [unit]: Number(value) },
     }));
   };
+
+  // Handle modal input changes for unit prices (if editable)
+  const handleUnitPriceChange = (unit, value) => {
+    setModalItem((prev) => ({
+      ...prev,
+      UnitPrices: { ...prev.UnitPrices, [unit]: Number(value) },
+    }));
+  };
+
+  // Handle add or update item
+  const handleAddItem = (e) => {
+    e.preventDefault();
+    // At least one unit must have a quantity > 0
+    const hasQty = Object.values(modalItem.UnitQuantities).some(
+      (qty) => qty > 0
+    );
+    if (!modalItem.ItemCode || !hasQty) {
+      alert("Please enter quantity for at least one unit.");
+      return;
+    }
+    setInvoiceItems((prev) => [
+      ...prev,
+      {
+        ItemCode: modalItem.ItemCode,
+        ItemName: modalItem.ItemName,
+        UnitQuantities: { ...modalItem.UnitQuantities },
+        UnitPrices: { ...modalItem.UnitPrices },
+      },
+    ]);
+    setModalOpen(false);
+    setModalItem(defaultModalState);
+    setEditIndex(null);
+  };
+
+  // Edit item in invoice list
+  const handleEdit = (idx) => {
+    const item = invoiceItems[idx];
+    setModalItem({ ...item });
+    setEditIndex(idx);
+    setModalOpen(true);
+  };
+
+  // Delete item from invoice list
+  const handleDelete = (idx) => {
+    setInvoiceItems((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  // Group invoiceItems by ItemCode for table display
+  const groupedInvoiceItems = useMemo(() => {
+    const map = new Map();
+    invoiceItems.forEach((item) => {
+      if (!map.has(item.ItemCode)) {
+        map.set(item.ItemCode, { ...item, SN: 1 });
+      } else {
+        const existing = map.get(item.ItemCode);
+        // Sum quantities and keep latest prices
+        const newUnitQuantities = { ...existing.UnitQuantities };
+        Object.keys(item.UnitQuantities).forEach((unit) => {
+          newUnitQuantities[unit] =
+            (newUnitQuantities[unit] || 0) + (item.UnitQuantities[unit] || 0);
+        });
+        map.set(item.ItemCode, {
+          ...existing,
+          SN: existing.SN + 1,
+          UnitQuantities: newUnitQuantities,
+          UnitPrices: { ...item.UnitPrices },
+        });
+      }
+    });
+    return Array.from(map.values());
+  }, [invoiceItems]);
+
+  // Compute all possible units from mockItems
+  const allUnits = useMemo(() => {
+    const set = new Set();
+    mockItems.forEach((item) => item.Units.forEach((unit) => set.add(unit)));
+    return Array.from(set);
+  }, []);
 
   return (
     <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8">
@@ -67,304 +278,322 @@ const InvoiceItemsSection = ({ formData, setFormData }) => {
         Invoice Items
       </h2>
 
-      {/* Add Item Form */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-6 items-end mb-6 border-b pb-6 border-gray-200 dark:border-gray-700">
-        <div className="relative w-full">
-          <label
-            htmlFor="itemCode"
-            className="absolute -top-2 left-3 px-1 text-xs bg-white text-gray-600 dark:bg-gray-800 dark:text-gray-300"
-          >
-            Item Code
-          </label>
+      {/* Search Input */}
+      <div className="mb-6 flex flex-col md:flex-row items-center gap-4 relative">
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             type="text"
-            name="ItemCode"
-            id="itemCode"
-            value={currentItem.ItemCode}
-            onChange={handleItemChange}
-            className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4"
+            placeholder="Search item by name or code..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onFocus={() => {
+              setSearchFocused(true);
+              setActiveCategoryDropdown(false);
+            }}
+            onBlur={() => setSearchFocused(false)}
+            className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-sm px-9 py-2"
           />
-        </div>
-
-        <div className="relative w-full">
-          <label
-            htmlFor="itemQty"
-            className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300"
-          >
-            Quantity
-          </label>
-          <input
-            type="number"
-            name="ItemQty"
-            id="itemQty"
-            value={currentItem.ItemQty}
-            onChange={handleItemChange}
-            min="1"
-            className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4"
-          />
-        </div>
-
-        <div className="relative w-full mt-4">
-          <label
-            htmlFor="unitPrice"
-            className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300"
-          >
-            Unit Price
-          </label>
-          <input
-            type="number"
-            name="UnitPrice"
-            id="unitPrice"
-            value={currentItem.UnitPrice}
-            onChange={handleItemChange}
-            min="0"
-            step="0.01"
-            className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4"
-          />
-        </div>
-
-        <div className="relative w-full mt-4">
-          <label
-            htmlFor="altSellingPrice"
-            className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300"
-          >
-            Alt Selling Price
-          </label>
-          <input
-            type="number"
-            name="AltSellingPrice"
-            id="altSellingPrice"
-            value={currentItem.AltSellingPrice}
-            onChange={handleItemChange}
-            min="0"
-            step="0.01"
-            className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4"
-          />
-        </div>
-
-        <div className="relative w-full mt-4">
-          <label
-            htmlFor="discountRate"
-            className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300"
-          >
-            Discount Rate (%)
-          </label>
-          <input
-            type="number"
-            name="DiscountRate"
-            id="discountRate"
-            value={currentItem.DiscountRate}
-            onChange={handleItemChange}
-            min="0"
-            max="100"
-            step="0.01"
-            className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-sm px-3 py-2 pt-4"
-          />
-        </div>
-
-        <div className="relative w-full mt-4">
-          <label className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300">
-            Total Amount
-          </label>
-          <p className="text-sm font-semibold border border-gray-300 dark:border-gray-600 h-10 pl-3 pt-1.5 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-800">
-            {parseFloat(currentItem.ItemAmount).toFixed(2)}
-          </p>
-        </div>
-      </div>
-
-      {/* Additional Item Details */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        {/* Item Type */}
-        <div className="relative">
-          <label
-            htmlFor="itemType"
-            className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
-          >
-            Item Type
-          </label>
-          <select
-            name="ItemType"
-            id="itemType"
-            value={currentItem.ItemType}
-            onChange={handleItemChange}
-            className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-sm py-2 pt-4 px-3 appearance-none pr-8"
-          >
-            <option value="">Select Type</option>
-            <option value="Gadget">Gadget</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Apparel">Apparel</option>
-            <option value="Food & Beverages">Food & Beverages</option>
-            <option value="Books">Books</option>
-            <option value="Home Goods">Home Goods</option>
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-        </div>
-
-        {/* Item Size */}
-        <div className="relative">
-          <label
-            htmlFor="itemSize"
-            className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
-          >
-            Item Size
-          </label>
-          <input
-            type="text"
-            name="ItemSize"
-            id="itemSize"
-            value={currentItem.ItemSize}
-            onChange={handleItemChange}
-            className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-sm py-2 pt-4 px-3"
-          />
-        </div>
-
-        {/* Item Colour */}
-        <div className="relative">
-          <label
-            htmlFor="itemColour"
-            className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
-          >
-            Item Colour
-          </label>
-          <select
-            name="ItemColour"
-            id="itemColour"
-            value={currentItem.ItemColour}
-            onChange={handleItemChange}
-            className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-sm py-2 pt-4 px-3 appearance-none pr-8"
-          >
-            <option value="">Select Colour</option>
-            <option value="Red">Red</option>
-            <option value="Blue">Blue</option>
-            <option value="Green">Green</option>
-            <option value="Black">Black</option>
-            <option value="White">White</option>
-            <option value="Gray">Gray</option>
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-        </div>
-
-        {/* Bulk Ret Factor */}
-        <div className="relative">
-          <label
-            htmlFor="bulkRetFactor"
-            className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10"
-          >
-            Bulk Ret Factor
-          </label>
-          <input
-            type="number"
-            name="BulkRetFactor"
-            id="bulkRetFactor"
-            value={currentItem.BulkRetFactor}
-            onChange={handleItemChange}
-            min="1"
-            className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-sm py-2 pt-4 px-3"
-          />
-        </div>
-      </div>
-
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={addItem}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-base font-medium"
-        >
-          Add Item
-        </button>
-      </div>
-
-      {/* Items List */}
-      {formData.RecordItems.length > 0 && (
-        <div className="mt-8 space-y-4">
-          {formData.RecordItems.map((item, idx) => (
+          {/* Search Dropdown */}
+          {(searchFocused || searchTerm.trim() || dropdownHovered) &&
+            !activeCategoryDropdown && (
+              <div
+                className="absolute left-0 right-0 mt-1 z-30 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg max-h-72 overflow-y-auto"
+                onMouseEnter={() => setDropdownHovered(true)}
+                onMouseLeave={() => setDropdownHovered(false)}
+              >
+                {searchFilteredItems.length === 0 ? (
+                  <div className="px-4 py-3 text-gray-500 dark:text-gray-300 text-center">
+                    No items found.
+                  </div>
+                ) : (
+                  searchFilteredItems.map((item) => (
+                    <div
+                      key={item.ItemCode}
+                      className="flex flex-row items-center justify-between px-4 py-3 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition"
+                      onClick={() => {
+                        setDropdownHovered(false);
+                        handleItemClick(item);
+                      }}
+                    >
+                      <div className="font-semibold text-gray-900 dark:text-white text-base">
+                        {item.ItemName}
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <div className="text-xs text-gray-500">
+                          {item.Units.join(", ")}
+                        </div>
+                        <div className="text-xs text-gray-900 dark:text-white font-semibold">
+                          ₦{item.SellingPrice.toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          {/* Category Dropdown */}
+          {activeCategoryDropdown && !searchFocused && !searchTerm.trim() && (
             <div
-              key={idx}
-              className="bg-blue-50 dark:bg-gray-700 rounded p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end"
+              ref={categoryDropdownRef}
+              className="absolute left-0 right-0 mt-1 z-30 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg max-h-72 overflow-y-auto"
+              onMouseEnter={() => setDropdownHovered(true)}
+              onMouseLeave={() => setDropdownHovered(false)}
             >
-              {/* Item Code */}
-              <div className="relative flex flex-col w-full">
-                <label
-                  htmlFor={`item-code-${idx}`}
-                  className="absolute -top-2 left-3 px-1 text-xs bg-blue-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
-                >
-                  Item Code
-                </label>
-                <input
-                  id={`item-code-${idx}`}
-                  type="text"
-                  className="block w-full rounded-md border border-gray-300 bg-blue-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs md:text-sm py-2 pt-4 px-3"
-                  value={item.ItemCode}
-                  onChange={(e) => {
-                    const newItems = [...formData.RecordItems];
-                    newItems[idx].ItemCode = e.target.value;
-                    setFormData((f) => ({ ...f, RecordItems: newItems }));
-                  }}
-                />
+              <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-300 font-semibold">
+                {mockCategories.find((c) => c.code === selectedCategory)?.name}{" "}
+                Items
               </div>
-              {/* Quantity */}
-              <div className="relative flex flex-col w-full">
-                <label
-                  htmlFor={`item-qty-${idx}`}
-                  className="absolute -top-2 left-3 px-1 text-xs bg-blue-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
-                >
-                  Qty
-                </label>
-                <input
-                  id={`item-qty-${idx}`}
-                  type="number"
-                  min="1"
-                  className="block w-full rounded-md border border-gray-300 bg-blue-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs md:text-sm py-2 pt-4 px-3 text-left"
-                  value={item.ItemQty}
-                  onChange={(e) => {
-                    const newItems = [...formData.RecordItems];
-                    newItems[idx].ItemQty = e.target.value;
-                    setFormData((f) => ({ ...f, RecordItems: newItems }));
-                  }}
-                />
-              </div>
-              {/* Bulk Ret */}
-              <div className="relative flex flex-col w-full">
-                <label
-                  htmlFor={`item-bulkret-${idx}`}
-                  className="absolute -top-2 left-3 px-1 text-xs bg-blue-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 z-10"
-                >
-                  Bulk Ret
-                </label>
-                <input
-                  id={`item-bulkret-${idx}`}
-                  type="number"
-                  min="1"
-                  className="block w-full rounded-md border border-gray-300 bg-blue-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs md:text-sm py-2 pt-4 px-3 text-right"
-                  value={item.BulkRetFactor}
-                  onChange={(e) => {
-                    const newItems = [...formData.RecordItems];
-                    newItems[idx].BulkRetFactor = e.target.value;
-                    setFormData((f) => ({ ...f, RecordItems: newItems }));
-                  }}
-                />
-              </div>
-              {/* Total (read-only) */}
-              <div className="flex flex-col w-24">
-                <label className="absolute -top-2 left-3 px-1 text-xs bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 z-10">
-                  Total
-                </label>
-                <div className="block w-full rounded-md border border-gray-200 bg-gray-100 dark:bg-gray-800 px-2 py-2 text-xs md:text-sm text-right font-semibold pt-4">
-                  {parseFloat(item.ItemAmount || 0).toFixed(2)}
+              {categoryFilteredItems.length === 0 ? (
+                <div className="px-4 py-3 text-gray-500 dark:text-gray-300 text-center">
+                  No items found.
                 </div>
-              </div>
-              {/* Remove button */}
-              <div className="flex flex-col w-16 items-end justify-end">
-                <button
-                  type="button"
-                  onClick={() => removeItem(idx)}
-                  className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mt-5"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
+              ) : (
+                categoryFilteredItems.map((item) => (
+                  <div
+                    key={item.ItemCode}
+                    className="flex flex-row items-center justify-between px-4 py-3 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition"
+                    onClick={() => {
+                      setDropdownHovered(false);
+                      handleItemClick(item);
+                    }}
+                  >
+                    <div className="font-semibold text-gray-900 dark:text-white text-base">
+                      {item.ItemName}
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <div className="text-xs text-gray-500">
+                        {item.Units.join(", ")}
+                      </div>
+                      <div className="text-xs text-gray-900 dark:text-white font-semibold">
+                        ₦{item.SellingPrice.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
-          ))}
+          )}
+        </div>
+        <div className="w-full md:w-auto flex-shrink-0">
+          <label
+            htmlFor="category-select"
+            className="block text-xs text-gray-500 dark:text-gray-300 mb-1 md:mb-0 md:mr-2 md:inline-block"
+          >
+            Search by category
+          </label>
+          <select
+            id="category-select"
+            ref={categorySelectRef}
+            value={selectedCategory ?? ""}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === "") {
+                setSelectedCategory(ALL_CATEGORIES);
+                setActiveCategoryDropdown(false);
+              } else {
+                setSelectedCategory(val);
+                setActiveCategoryDropdown(true);
+                setSearchFocused(false);
+                setSearchTerm("");
+              }
+            }}
+            className="rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-sm px-3 py-2 min-w-[160px]"
+          >
+            <option value="">All</option>
+            {mockCategories.map((cat) => (
+              <option key={cat.code} value={cat.code}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Modal for Add/Edit Item */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-md relative">
+            <button
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-white"
+              onClick={() => setModalOpen(false)}
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+              {editIndex !== null ? "Edit Item" : "Add Item"}
+            </h3>
+            <form onSubmit={handleAddItem} className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+                  Item Name
+                </label>
+                <input
+                  type="text"
+                  value={modalItem.ItemName}
+                  name="ItemName"
+                  readOnly
+                  className="w-full rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white"
+                />
+              </div>
+              {/* Inputs for each unit, only show if price > 0 */}
+              {Object.keys(modalItem.UnitQuantities).map(
+                (unit, idx) =>
+                  modalItem.UnitPrices[unit] > 0 && (
+                    <div key={unit} className="flex gap-2 items-end">
+                      <div className="flex-1">
+                        <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+                          {unit} Qty
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={modalItem.UnitQuantities[unit]}
+                          onChange={(e) =>
+                            handleUnitQtyChange(unit, e.target.value)
+                          }
+                          className="w-full rounded border border-gray-300 dark:border-gray-600 px-3 py-2 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+                          {idx === 0 ? "Selling Price" : "Alt Selling Price"}
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={modalItem.UnitPrices[unit]}
+                          onChange={(e) =>
+                            handleUnitPriceChange(unit, e.target.value)
+                          }
+                          className="w-full rounded border border-gray-300 dark:border-gray-600 px-3 py-2 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                    </div>
+                  )
+              )}
+              <button
+                onClick={handleAddItem}
+                type="submit"
+                className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold mt-2"
+              >
+                {editIndex !== null ? "Update Item" : "Add Item"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Invoice Items Table */}
+      {groupedInvoiceItems.length > 0 && (
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+            Added Items
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead>
+                <tr className="bg-gray-100 dark:bg-gray-700">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                    SN
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                    Name
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                    Code
+                  </th>
+                  {allUnits.map((unit) => (
+                    <th
+                      key={unit + "-qty"}
+                      className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"
+                    >
+                      {unit} Qty
+                    </th>
+                  ))}
+                  {allUnits.map((unit) => (
+                    <th
+                      key={unit + "-price"}
+                      className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"
+                    >
+                      {unit} Price
+                    </th>
+                  ))}
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                    Total Price
+                  </th>
+                  <th className="px-4 py-2"></th>
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                {groupedInvoiceItems.map((item, idx) => {
+                  const total = allUnits.reduce(
+                    (sum, unit) =>
+                      sum +
+                      (item.UnitQuantities[unit] || 0) *
+                        (item.UnitPrices[unit] || 0),
+                    0
+                  );
+                  return (
+                    <tr key={item.ItemCode || idx}>
+                      <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
+                        {item.SN}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
+                        {item.ItemName}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
+                        {item.ItemCode}
+                      </td>
+                      {allUnits.map((unit) => (
+                        <td
+                          key={unit + "-qty"}
+                          className="px-4 py-2 text-sm text-gray-900 dark:text-white"
+                        >
+                          {typeof item.UnitQuantities[unit] === "number" &&
+                          item.UnitQuantities[unit] > 0
+                            ? item.UnitQuantities[unit]
+                            : "-"}
+                        </td>
+                      ))}
+                      {allUnits.map((unit) => (
+                        <td
+                          key={unit + "-price"}
+                          className="px-4 py-2 text-sm text-gray-900 dark:text-white"
+                        >
+                          {typeof item.UnitPrices[unit] === "number" &&
+                          item.UnitPrices[unit] > 0
+                            ? `₦${item.UnitPrices[unit].toLocaleString()}`
+                            : "-"}
+                        </td>
+                      ))}
+                      <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
+                        ₦{total.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleEdit(idx)}
+                            className="text-blue-500 hover:text-blue-700"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(idx)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
