@@ -189,18 +189,18 @@ export const createPOSTransaction = async (
 };
 
 // Customer APIs
-export const getCustomers = async (searchTerm = "") => {
-  try {
-    const response = await api.get("/api/Customers/list", {
-      params: { search: searchTerm },
-    });
-    console.log("Customers fetched:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Get customers error:", error);
-    throw error;
-  }
-};
+// export const getCustomers = async (searchTerm = "") => {
+//   try {
+//     const response = await api.get("/api/Customers/list", {
+//       params: { search: searchTerm },
+//     });
+//     console.log("Customers fetched:", response.data);
+//     return response.data;
+//   } catch (error) {
+//     console.error("Get customers error:", error);
+//     throw error;
+//   }
+// };
 
 export const createCustomer = async (customerData) => {
   try {
@@ -249,8 +249,34 @@ export const fetchCustomersPaginated = async ({
       },
     }
   );
-  console.log("Fetched Customer Response = ", response)
+  console.log("Fetched Customer Response = ", response);
   return response.data;
+};
+
+export const fetchStockItemsPaginated = async ({
+  StockDesc = "",
+  upc = "",
+  pageNumber = 1,
+  token,
+}) => {
+  try {
+    const response = await api.get("/api/Stockitem/lookup", {
+      params: {
+        StockDesc: StockDesc,
+        upc: upc,
+        PageNumber: pageNumber,
+      },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+    console.log("Fetched Stock Items Response = ", response);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching stock items:", error);
+    throw error;
+  }
 };
 
 export default api;

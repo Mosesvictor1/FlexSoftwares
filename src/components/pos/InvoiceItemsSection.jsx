@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Plus, Trash2, Edit2, Search, X, ChevronDown } from "lucide-react";
+import { usePaginatedStockItems } from "../../hooks/usePaginatedStockItems";
 
 // Mock data for categories and items
 const mockCategories = [
@@ -7,101 +8,6 @@ const mockCategories = [
   { code: "TABLE", name: "Table" },
   { code: "CHAIR", name: "Chair" },
   { code: "SOFTDRINK", name: "Soft Drink" },
-];
-
-const mockItems = [
-  {
-    ItemCode: "B001",
-    ItemName: "Heineken Beer",
-    Category: "BEER",
-    Units: ["CTN", "PCS"],
-    SellingPrice: 5000,
-    AltSellingPrice: 450,
-    AltUnit: "PCS",
-  },
-  {
-    ItemCode: "B002",
-    ItemName: "Goldberg 60CL",
-    Category: "BEER",
-    Units: ["CTN", "PCS"],
-    SellingPrice: 4800,
-    AltSellingPrice: 420,
-    AltUnit: "PCS",
-  },
-  {
-    ItemCode: "T001",
-    ItemName: "Wooden Table",
-    Category: "TABLE",
-    Units: ["PCS"],
-    SellingPrice: 12000,
-    AltSellingPrice: 0,
-    AltUnit: "",
-  },
-  {
-    ItemCode: "C001",
-    ItemName: "Plastic Chair",
-    Category: "CHAIR",
-    Units: ["PCS", "DOZ"],
-    SellingPrice: 1500,
-    AltSellingPrice: 16000,
-    AltUnit: "DOZ",
-  },
-  // New mock items, some without alt qty/price
-  {
-    ItemCode: "F001",
-    ItemName: "Fanta 50CL",
-    Category: "SOFTDRINK",
-    Units: ["CTN", "PCS"],
-    SellingPrice: 3000,
-    AltSellingPrice: 0,
-    AltUnit: "",
-  },
-  {
-    ItemCode: "B003",
-    ItemName: "Star Beer",
-    Category: "BEER",
-    Units: ["CTN", "PCS"],
-    SellingPrice: 4700,
-    AltSellingPrice: 0,
-    AltUnit: "",
-  },
-  {
-    ItemCode: "A001",
-    ItemName: "Office Armchair",
-    Category: "CHAIR",
-    Units: ["PCS"],
-    SellingPrice: 8500,
-    AltSellingPrice: 0,
-    AltUnit: "",
-  },
-  {
-    ItemCode: "T002",
-    ItemName: "Glass Table",
-    Category: "TABLE",
-    Units: ["PCS"],
-    SellingPrice: 20000,
-    AltSellingPrice: 0,
-    AltUnit: "",
-  },
-  {
-    ItemCode: "S001",
-    ItemName: "Sprite 50CL",
-    Category: "SOFTDRINK",
-    Units: ["CTN", "PCS"],
-    SellingPrice: 3100,
-    AltSellingPrice: 0,
-    AltUnit: "",
-  },
-  {
-    ItemCode: "B004",
-    ItemName: "Legend Stout",
-    Category: "BEER",
-    Units: ["CTN", "PCS"],
-    SellingPrice: 4900,
-    AltSellingPrice: 430,
-    AltUnit: "PCS",
-  },
-  // ... more mock items
 ];
 
 const defaultModalState = {
@@ -127,25 +33,80 @@ const InvoiceItemsSection = () => {
   const categorySelectRef = useRef(null);
   const categoryDropdownRef = useRef(null);
 
-  // Filtered items for search dropdown (searches all items, ignores category)
+  // Use the hook to fetch stock items
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    usePaginatedStockItems(searchTerm, "");
+
+  // Transform API data to UI structure
+  const stockItems = useMemo(() => {
+    if (!data?.pages) return [];
+    return data.pages.flatMap((page) =>
+      (page.items || page.data || []).map((item) => ({
+        ItemCode: item.ItemCode,
+        ItemName: item.StockDesc,
+        Category: item.ItemType,
+        Units: [item.UnitOfMeasure, item.AltUnitOfMeasure].filter(Boolean),
+        SellingPrice: item.UnitPrice,
+        AltSellingPrice: item.AltUnitPrice,
+        AltUnit: item.AltUnitOfMeasure,
+        // ...add other fields as needed
+      }))
+    );
+  }, [data]);
+
+  // Group invoiceItems by ItemCode for table display
+  const groupedInvoiceItems = useMemo(() => {
+    const map = new Map();
+    invoiceItems.forEach((item) => {
+      if (!map.has(item.ItemCode)) {
+        map.set(item.ItemCode, { ...item, SN: 1 });
+      } else {
+        const existing = map.get(item.ItemCode);
+        // Sum quantities and keep latest prices
+        const newUnitQuantities = { ...existing.UnitQuantities };
+        Object.keys(item.UnitQuantities).forEach((unit) => {
+          newUnitQuantities[unit] =
+            (newUnitQuantities[unit] || 0) + (item.UnitQuantities[unit] || 0);
+        });
+        map.set(item.ItemCode, {
+          ...existing,
+          SN: existing.SN + 1,
+          UnitQuantities: newUnitQuantities,
+          UnitPrices: { ...item.UnitPrices },
+        });
+      }
+    });
+    return Array.from(map.values());
+  }, [invoiceItems]);
+
+  // Compute all possible units from groupedInvoiceItems (only units used in the invoice)
+  const allUnits = useMemo(() => {
+    const set = new Set();
+    groupedInvoiceItems.forEach((item) =>
+      item.Units?.forEach((unit) => set.add(unit))
+    );
+    return Array.from(set);
+  }, [groupedInvoiceItems]);
+
+  // Update categoryFilteredItems to use mapped stockItems
+  const categoryFilteredItems = useMemo(() => {
+    if (!selectedCategory) return [];
+    return stockItems.filter((item) => item.Category === selectedCategory);
+  }, [selectedCategory, stockItems]);
+
+  // Update searchFilteredItems to use mapped stockItems
   const searchFilteredItems = useMemo(() => {
-    let items = mockItems;
+    let items = stockItems;
     if (searchTerm.trim()) {
       const term = searchTerm.trim().toLowerCase();
       items = items.filter(
         (item) =>
-          item.ItemName.toLowerCase().includes(term) ||
-          item.ItemCode.toLowerCase().includes(term)
+          item.ItemName?.toLowerCase().includes(term) ||
+          item.ItemCode?.toLowerCase().includes(term)
       );
     }
     return items;
-  }, [searchTerm]);
-
-  // Filtered items for category dropdown (filtered by selected category)
-  const categoryFilteredItems = useMemo(() => {
-    if (!selectedCategory) return [];
-    return mockItems.filter((item) => item.Category === selectedCategory);
-  }, [selectedCategory]);
+  }, [searchTerm, stockItems]);
 
   // Click-away handler for category dropdown
   useEffect(() => {
@@ -168,7 +129,7 @@ const InvoiceItemsSection = () => {
   const handleItemClick = (item) => {
     const unitQuantities = {};
     const unitPrices = {};
-    item.Units.forEach((unit, idx) => {
+    (item.Units || []).forEach((unit, idx) => {
       unitQuantities[unit] = 1;
       if (idx === 0) {
         unitPrices[unit] = item.SellingPrice;
@@ -177,8 +138,7 @@ const InvoiceItemsSection = () => {
       }
     });
     setModalItem({
-      ItemCode: item.ItemCode,
-      ItemName: item.ItemName,
+      ...item,
       UnitQuantities: unitQuantities,
       UnitPrices: unitPrices,
     });
@@ -216,8 +176,7 @@ const InvoiceItemsSection = () => {
     setInvoiceItems((prev) => [
       ...prev,
       {
-        ItemCode: modalItem.ItemCode,
-        ItemName: modalItem.ItemName,
+        ...modalItem,
         UnitQuantities: { ...modalItem.UnitQuantities },
         UnitPrices: { ...modalItem.UnitPrices },
       },
@@ -239,38 +198,6 @@ const InvoiceItemsSection = () => {
   const handleDelete = (idx) => {
     setInvoiceItems((prev) => prev.filter((_, i) => i !== idx));
   };
-
-  // Group invoiceItems by ItemCode for table display
-  const groupedInvoiceItems = useMemo(() => {
-    const map = new Map();
-    invoiceItems.forEach((item) => {
-      if (!map.has(item.ItemCode)) {
-        map.set(item.ItemCode, { ...item, SN: 1 });
-      } else {
-        const existing = map.get(item.ItemCode);
-        // Sum quantities and keep latest prices
-        const newUnitQuantities = { ...existing.UnitQuantities };
-        Object.keys(item.UnitQuantities).forEach((unit) => {
-          newUnitQuantities[unit] =
-            (newUnitQuantities[unit] || 0) + (item.UnitQuantities[unit] || 0);
-        });
-        map.set(item.ItemCode, {
-          ...existing,
-          SN: existing.SN + 1,
-          UnitQuantities: newUnitQuantities,
-          UnitPrices: { ...item.UnitPrices },
-        });
-      }
-    });
-    return Array.from(map.values());
-  }, [invoiceItems]);
-
-  // Compute all possible units from mockItems
-  const allUnits = useMemo(() => {
-    const set = new Set();
-    mockItems.forEach((item) => item.Units.forEach((unit) => set.add(unit)));
-    return Array.from(set);
-  }, []);
 
   return (
     <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8">
@@ -302,33 +229,71 @@ const InvoiceItemsSection = () => {
                 onMouseEnter={() => setDropdownHovered(true)}
                 onMouseLeave={() => setDropdownHovered(false)}
               >
-                {searchFilteredItems.length === 0 ? (
+                {isLoading ? (
+                  <div className="px-4 py-3 text-gray-500 dark:text-gray-300 text-center">
+                    Loading items...
+                  </div>
+                ) : searchFilteredItems.length === 0 ? (
                   <div className="px-4 py-3 text-gray-500 dark:text-gray-300 text-center">
                     No items found.
                   </div>
                 ) : (
-                  searchFilteredItems.map((item) => (
-                    <div
-                      key={item.ItemCode}
-                      className="flex flex-row items-center justify-between px-4 py-3 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition"
-                      onClick={() => {
-                        setDropdownHovered(false);
-                        handleItemClick(item);
-                      }}
-                    >
-                      <div className="font-semibold text-gray-900 dark:text-white text-base">
-                        {item.ItemName}
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <div className="text-xs text-gray-500">
-                          {item.Units.join(", ")}
+                  <>
+                    {searchFilteredItems.map((item) => (
+                      <div
+                        key={item.ItemCode}
+                        className="flex flex-row items-center justify-between px-4 py-3 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition"
+                        onClick={() => {
+                          setDropdownHovered(false);
+                          handleItemClick(item);
+                        }}
+                      >
+                        <div className="font-semibold text-gray-900 dark:text-white text-base">
+                          {item.ItemName}
                         </div>
-                        <div className="text-xs text-gray-900 dark:text-white font-semibold">
-                          ₦{item.SellingPrice.toLocaleString()}
+                        <div className="flex flex-col items-end">
+                          <div className="text-xs text-gray-500">
+                            {item.Units?.join(", ")}
+                          </div>
+                          <div className="text-xs text-gray-900 dark:text-white font-semibold">
+                            ₦{item.SellingPrice?.toLocaleString()}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    ))}
+                    {hasNextPage && (
+                      <button
+                        type="button"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 mt-1 mb-1 rounded-lg bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200 font-semibold shadow-sm hover:bg-blue-100 dark:hover:bg-blue-800 border border-blue-200 dark:border-blue-800 transition disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        onClick={() => fetchNextPage()}
+                        disabled={isFetchingNextPage}
+                      >
+                        {isFetchingNextPage && (
+                          <svg
+                            className="animate-spin h-4 w-4 text-blue-500"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                            ></path>
+                          </svg>
+                        )}
+                        {isFetchingNextPage ? "Loading more..." : "Load more"}
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             )}
@@ -363,10 +328,10 @@ const InvoiceItemsSection = () => {
                     </div>
                     <div className="flex flex-col items-end">
                       <div className="text-xs text-gray-500">
-                        {item.Units.join(", ")}
+                        {item.Units?.join(", ")}
                       </div>
                       <div className="text-xs text-gray-900 dark:text-white font-semibold">
-                        ₦{item.SellingPrice.toLocaleString()}
+                        ₦{item.SellingPrice?.toLocaleString()}
                       </div>
                     </div>
                   </div>
@@ -506,7 +471,7 @@ const InvoiceItemsSection = () => {
                   {allUnits.map((unit) => (
                     <th
                       key={unit + "-qty"}
-                      className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"
+                      className="px-4 py-2 text-left text-xs font-medium text-red-500 dark:text-gray-300 uppercase"
                     >
                       {unit} Qty
                     </th>
