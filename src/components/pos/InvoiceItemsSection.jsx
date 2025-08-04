@@ -25,7 +25,7 @@ const InvoiceItemsSection = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalItem, setModalItem] = useState(defaultModalState);
   const [invoiceItems, setInvoiceItems] = useState([]);
-  const [editIndex, setEditIndex] = useState(null);
+  const [editingItemCode, setEditingItemCode] = useState(null); // Track which item we're editing
   const [searchTerm, setSearchTerm] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const [dropdownHovered, setDropdownHovered] = useState(false);
@@ -142,7 +142,7 @@ const InvoiceItemsSection = () => {
       UnitQuantities: unitQuantities,
       UnitPrices: unitPrices,
     });
-    setEditIndex(null);
+    setEditingItemCode(null);
     setModalOpen(true);
   };
 
@@ -173,30 +173,48 @@ const InvoiceItemsSection = () => {
       alert("Please enter quantity for at least one unit.");
       return;
     }
-    setInvoiceItems((prev) => [
-      ...prev,
-      {
-        ...modalItem,
-        UnitQuantities: { ...modalItem.UnitQuantities },
-        UnitPrices: { ...modalItem.UnitPrices },
-      },
-    ]);
+
+    if (editingItemCode) {
+      // Update mode: Remove all existing entries for this item and add the new one
+      setInvoiceItems((prev) => [
+        ...prev.filter((item) => item.ItemCode !== editingItemCode),
+        {
+          ...modalItem,
+          UnitQuantities: { ...modalItem.UnitQuantities },
+          UnitPrices: { ...modalItem.UnitPrices },
+        },
+      ]);
+    } else {
+      // Add mode: Just add the new item
+      setInvoiceItems((prev) => [
+        ...prev,
+        {
+          ...modalItem,
+          UnitQuantities: { ...modalItem.UnitQuantities },
+          UnitPrices: { ...modalItem.UnitPrices },
+        },
+      ]);
+    }
+
     setModalOpen(false);
     setModalItem(defaultModalState);
-    setEditIndex(null);
+    setEditingItemCode(null);
   };
 
-  // Edit item in invoice list
+  // Edit item in invoice list - now uses grouped item values
   const handleEdit = (idx) => {
-    const item = invoiceItems[idx];
-    setModalItem({ ...item });
-    setEditIndex(idx);
+    const groupedItem = groupedInvoiceItems[idx];
+    setModalItem({ ...groupedItem });
+    setEditingItemCode(groupedItem.ItemCode);
     setModalOpen(true);
   };
 
-  // Delete item from invoice list
+  // Delete item from invoice list - now removes all entries for this ItemCode
   const handleDelete = (idx) => {
-    setInvoiceItems((prev) => prev.filter((_, i) => i !== idx));
+    const groupedItem = groupedInvoiceItems[idx];
+    setInvoiceItems((prev) => 
+      prev.filter((item) => item.ItemCode !== groupedItem.ItemCode)
+    );
   };
 
   return (
@@ -386,7 +404,7 @@ const InvoiceItemsSection = () => {
               <X className="h-5 w-5" />
             </button>
             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-              {editIndex !== null ? "Edit Item" : "Add Item"}
+              {editingItemCode ? "Edit Item" : "Add Item"}
             </h3>
             <form onSubmit={handleAddItem} className="space-y-4">
               <div>
@@ -442,7 +460,7 @@ const InvoiceItemsSection = () => {
                 type="submit"
                 className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold mt-2"
               >
-                {editIndex !== null ? "Update Item" : "Add Item"}
+                {editingItemCode ? "Update Item" : "Add Item"}
               </button>
             </form>
           </div>
