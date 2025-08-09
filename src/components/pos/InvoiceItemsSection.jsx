@@ -20,7 +20,7 @@ const defaultModalState = {
 // Add a constant for the 'All' value
 const ALL_CATEGORIES = null;
 
-const InvoiceItemsSection = () => {
+const InvoiceItemsSection = ({ setFormData }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalItem, setModalItem] = useState(defaultModalState);
@@ -87,6 +87,29 @@ const InvoiceItemsSection = () => {
     );
     return Array.from(set);
   }, [groupedInvoiceItems]);
+
+  // Sync grouped items into parent form as RecordItems with computed ItemAmount
+  useEffect(() => {
+    const recordItems = groupedInvoiceItems.map((item) => {
+      const itemTotal = Object.keys(item.UnitQuantities || {}).reduce(
+        (sum, unit) =>
+          sum +
+          Number(item.UnitQuantities[unit] || 0) *
+            Number(item.UnitPrices[unit] || 0),
+        0
+      );
+      return {
+        ItemCode: item.ItemCode,
+        ItemName: item.ItemName,
+        UnitQuantities: { ...item.UnitQuantities },
+        UnitPrices: { ...item.UnitPrices },
+        ItemAmount: itemTotal,
+      };
+    });
+    if (typeof setFormData === "function") {
+      setFormData((prev) => ({ ...prev, RecordItems: recordItems }));
+    }
+  }, [groupedInvoiceItems, setFormData]);
 
   // Update categoryFilteredItems to use mapped stockItems
   const categoryFilteredItems = useMemo(() => {
@@ -212,7 +235,7 @@ const InvoiceItemsSection = () => {
   // Delete item from invoice list - now removes all entries for this ItemCode
   const handleDelete = (idx) => {
     const groupedItem = groupedInvoiceItems[idx];
-    setInvoiceItems((prev) => 
+    setInvoiceItems((prev) =>
       prev.filter((item) => item.ItemCode !== groupedItem.ItemCode)
     );
   };
@@ -406,7 +429,7 @@ const InvoiceItemsSection = () => {
             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
               {editingItemCode ? "Edit Item" : "Add Item"}
             </h3>
-            <form onSubmit={handleAddItem} className="space-y-4">
+            <div className="space-y-4">
               <div>
                 <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
                   Item Name
@@ -457,12 +480,12 @@ const InvoiceItemsSection = () => {
               )}
               <button
                 onClick={handleAddItem}
-                type="submit"
+                type="button"
                 className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold mt-2"
               >
                 {editingItemCode ? "Update Item" : "Add Item"}
               </button>
-            </form>
+            </div>
           </div>
         </div>
       )}

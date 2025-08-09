@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { ChevronDown, X, Plus } from "lucide-react";
 
 const STATIC_PAYMENT_MODE = [
@@ -18,18 +18,23 @@ const PaymentDetailsSection = ({
   handleFormChange,
   config = {},
   dropdownData = {},
+  totalPayable,
 }) => {
   // Use payment modes from dropdownData if available, else fallback to static list
-  const paymentModes = dropdownData?.PaymentModes?.length
-    ? dropdownData.PaymentModes.filter((m) => m.EntryCode && m.Description)
-    : []
+  const paymentModes = useMemo(() => {
+    return dropdownData?.PaymentModes?.length
+      ? dropdownData.PaymentModes.filter((m) => m.EntryCode && m.Description)
+      : [];
+  }, [dropdownData?.PaymentModes]);
 
-  // Use TotalAmountItems as the main total for payment splits
+  // Use Total Payable from parent if provided; fallback to totals
   const totalAmount =
-    formData.TotalAmountItems ||
-    formData.TotalAmount ||
-    config.totalAmount ||
-    0;
+    typeof totalPayable === "number"
+      ? totalPayable
+      : formData.TotalAmountItems ||
+        formData.TotalAmount ||
+        config.totalAmount ||
+        0;
 
   // Parse PaymentModeSplitStr if present, else default to one split
   const parseSplits = (splitStr) => {
@@ -54,8 +59,28 @@ const PaymentDetailsSection = ({
         { mode: paymentModes[0]?.EntryCode || "Cash", amount: totalAmount },
       ]);
     }
-    // eslint-disable-next-line
-  }, [totalAmount, paymentModes]);
+  }, [totalAmount, paymentModes, formData.PaymentModeSplitStr]);
+
+  // Keep splits in sync when totalAmount changes: if sum > total, reduce first; if sum < total, top up first
+  useEffect(() => {
+    if (!splits || splits.length === 0) return;
+    const EPSILON = 0.005;
+    const totalSplitNow = splits.reduce((sum, s) => sum + Number(s.amount), 0);
+    if (Math.abs(totalSplitNow - totalAmount) <= EPSILON) return;
+
+    if (totalSplitNow > totalAmount) {
+      // Reduce the first split to fit the new total
+      const excess = totalSplitNow - totalAmount;
+      const firstAmount = Math.max(0, Number(splits[0]?.amount || 0) - excess);
+      if (Math.abs(firstAmount - (splits[0]?.amount || 0)) > EPSILON)
+        setSplits([{ ...splits[0], amount: firstAmount }, ...splits.slice(1)]);
+    } else {
+      // Top up the first split to reach the total
+      const deficit = totalAmount - totalSplitNow;
+      const firstAmount = Number(splits[0]?.amount || 0) + deficit;
+      setSplits([{ ...splits[0], amount: firstAmount }, ...splits.slice(1)]);
+    }
+  }, [totalAmount, splits]);
 
   // Update PaymentModeSplitStr in parent form whenever splits change
   useEffect(() => {
@@ -73,22 +98,15 @@ const PaymentDetailsSection = ({
         value: splits[0]?.mode || "",
       },
     });
-    // eslint-disable-next-line
-  }, [splits]);
+  }, [splits, handleFormChange]);
 
-  // Add a new split with remaining amount
+  // Add a new split; allow adding even if total is fully allocated
   const addSplit = () => {
-    const used = splits.reduce((sum, s) => sum + Number(s.amount), 0);
-    const remaining = totalAmount - used;
     setSplits([
       ...splits,
       {
-        mode:
-          paymentModes.find((m) => !splits.some((s) => s.mode === m.EntryCode))
-            ?.EntryCode ||
-          paymentModes[0]?.EntryCode ||
-          "Others",
-        amount: remaining > 0 ? remaining : 0,
+        mode: paymentModes[0]?.EntryCode || "Cash",
+        amount: 50, // Default to minimum amount
       },
     ]);
   };
@@ -111,8 +129,15 @@ const PaymentDetailsSection = ({
 
   // Calculate total split
   const totalSplit = splits.reduce((sum, s) => sum + Number(s.amount), 0);
-  const canAddMore =
-    totalSplit < totalAmount && splits.length < paymentModes.length;
+  
+  // Check if any amount is less than 50
+  const hasAmountLessThan50 = splits.some((split) => Number(split.amount) < 50);
+  
+  // Allow up to 5 splits regardless of total, to enable redistribution
+  const canAddMore = splits.length < 5;
+  
+  // Button should be disabled if we can't add more OR if any amount is less than 50
+  const isAddButtonDisabled = !canAddMore || hasAmountLessThan50;
 
   return (
     <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8">
@@ -127,17 +152,13 @@ const PaymentDetailsSection = ({
                 className="block w-full rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 px-3 appearance-none pr-10"
                 value={split.mode}
                 onChange={(e) => updateSplit(idx, "mode", e.target.value)}
-                disabled={
-                  splits.length > 1 && paymentModes.length === splits.length
-                }
+                disabled={false}
               >
                 {paymentModes.map((mode) => (
                   <option
                     key={mode.EntryCode}
                     value={mode.EntryCode}
-                    disabled={splits.some(
-                      (s, i) => s.mode === mode.EntryCode && i !== idx
-                    )}
+                    disabled={false}
                   >
                     {mode.Description}
                   </option>
@@ -147,19 +168,25 @@ const PaymentDetailsSection = ({
             </div>
             <input
               type="number"
-              min={0}
-              max={totalAmount - (totalSplit - split.amount)}
-              className="w-32 rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 px-3"
-              value={split.amount}
+              min={50}
+              className={`w-32 rounded-md border ${
+                Number(split.amount) < 50 
+                  ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600' 
+                  : 'border-gray-300 bg-white dark:bg-gray-800'
+              } text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 px-3`}
+              placeholder="50"
+              value={split.amount ? split.amount : ""}
               onChange={(e) => {
                 let val = Number(e.target.value);
                 if (val < 0) val = 0;
-                if (val > totalAmount - (totalSplit - split.amount))
-                  val = totalAmount - (totalSplit - split.amount);
                 updateSplit(idx, "amount", val);
               }}
             />
             <span className="text-gray-500 text-sm">NGN</span>
+            {Number(split.amount) < 50 && (
+              <span className="text-red-500 text-xs">Min: 50</span>
+            )}
+
             {splits.length > 1 && (
               <button
                 type="button"
@@ -175,9 +202,16 @@ const PaymentDetailsSection = ({
         <div className="flex items-center gap-4 mt-2">
           <button
             type="button"
-            className="flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50"
+            className="flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={addSplit}
-            disabled={!canAddMore}
+            disabled={isAddButtonDisabled}
+            title={
+              !canAddMore 
+                ? "Maximum 5 payment modes allowed" 
+                : hasAmountLessThan50 
+                  ? "All amounts must be at least 50 NGN" 
+                  : ""
+            }
           >
             <Plus className="h-4 w-4 mr-1" /> Add Payment Mode
           </button>
@@ -193,6 +227,11 @@ const PaymentDetailsSection = ({
             / {totalAmount.toLocaleString()} NGN
           </span>
         </div>
+        {/* {hasAmountLessThan50 && (
+          <div className="text-xs text-red-500 mt-2">
+            ⚠️ All payment amounts must be at least 50 NGN to add more payment modes.
+          </div>
+        )} */}
         <div className="mt-2 text-xs text-gray-500">
           <strong>Split String:</strong>{" "}
           {splits.map((s) => `${s.mode}=${s.amount}`).join("|")}

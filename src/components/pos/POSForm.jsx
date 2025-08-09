@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Plus,
   Trash2,
@@ -64,30 +64,45 @@ const POSForm = ({
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [manualCustomerName, setManualCustomerName] = useState("");
 
-  // Recalculate TotalAmountItems whenever RecordItems changes
-  useEffect(() => {
-    const newTotalAmount = formData.RecordItems.reduce(
-      (sum, item) => sum + parseFloat(item.ItemAmount || 0),
-      0
-    );
-    setFormData((prev) => ({ ...prev, TotalAmountItems: newTotalAmount }));
-  }, [formData.RecordItems]);
-
-  // Calculate change based on Tender and Total Payable
-  useEffect(() => {
-    const totalPayable = calculateTotalPayable();
-    setFormData((prev) => ({
-      ...prev,
-      Change: Math.max(0, parseFloat(prev.Tender || 0) - totalPayable),
-    }));
+  const calculateTotalPayable = useCallback(() => {
+    const total = (
+      parseFloat(formData.TotalAmountItems || 0) +
+      parseFloat(formData.VATAmount || 0) -
+      parseFloat(formData.DiscountAmount || 0) +
+      parseFloat(formData.Commission || 0) +
+      parseFloat(formData.ExtraChargeAmount || 0)
+    ).toFixed(2);
+    return parseFloat(total);
   }, [
-    formData.Tender,
     formData.TotalAmountItems,
     formData.VATAmount,
     formData.DiscountAmount,
     formData.Commission,
     formData.ExtraChargeAmount,
   ]);
+
+  // Recalculate TotalAmountItems whenever RecordItems changes
+  useEffect(() => {
+    const newTotalAmount = formData.RecordItems.reduce(
+      (sum, item) => sum + parseFloat(item.ItemAmount || 0),
+      0
+    );
+    if (newTotalAmount !== formData.TotalAmountItems) {
+      setFormData((prev) => ({ ...prev, TotalAmountItems: newTotalAmount }));
+    }
+  }, [formData.RecordItems, formData.TotalAmountItems]);
+
+  // Calculate change based on Tender and Total Payable
+  useEffect(() => {
+    const totalPayable = calculateTotalPayable();
+    const nextChange = Math.max(
+      0,
+      parseFloat(formData.Tender || 0) - totalPayable
+    );
+    if (nextChange !== formData.Change) {
+      setFormData((prev) => ({ ...prev, Change: nextChange }));
+    }
+  }, [formData.Tender, formData.Change, calculateTotalPayable]);
 
   // Update customer info when selected
   useEffect(() => {
@@ -127,40 +142,37 @@ const POSForm = ({
     }));
   }, [currentAccountingYear]);
 
-  // Update formData defaults if dropdownData changes
+  // Update formData defaults if dropdownData changes (only when values differ)
   useEffect(() => {
-    setFormData((prev) => ({
-      ...prev,
-      Vno: dropdownData?.VoucherNumber || prev.Vno,
-      TransDate: dropdownData?.CurrentDate || prev.TransDate,
-      CustomerType: dropdownData?.CustomerType || prev.CustomerType,
-      BaseCurrencyCode:
-        dropdownData?.DefaultCurrencyCode || prev.BaseCurrencyCode,
-      PaymentMode: dropdownData?.DefaultPaymentMode || prev.PaymentMode,
-      LocationCode: dropdownData?.DefaultLocation || prev.LocationCode,
-      CustomerCode: dropdownData?.CustomerCode || prev.CustomerCode,
-      CustomerName: dropdownData?.CustomerCode || prev.CustomerName,
-    }));
+    setFormData((prev) => {
+      const next = {
+        ...prev,
+        Vno: dropdownData?.VoucherNumber || prev.Vno,
+        TransDate: dropdownData?.CurrentDate || prev.TransDate,
+        CustomerType: dropdownData?.CustomerType || prev.CustomerType,
+        BaseCurrencyCode:
+          dropdownData?.DefaultCurrencyCode || prev.BaseCurrencyCode,
+        PaymentMode: dropdownData?.DefaultPaymentMode || prev.PaymentMode,
+        LocationCode: dropdownData?.DefaultLocation || prev.LocationCode,
+        CustomerCode: dropdownData?.CustomerCode || prev.CustomerCode,
+        CustomerName: dropdownData?.CustomerCode || prev.CustomerName,
+      };
+      // Prevent unnecessary state updates to avoid loops
+      if (JSON.stringify(next) === JSON.stringify(prev)) return prev;
+      return next;
+    });
   }, [dropdownData]);
 
-  const handleFormChange = (e) => {
+  const handleFormChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const calculateTotalPayable = () => {
-    const total = (
-      parseFloat(formData.TotalAmountItems || 0) +
-      parseFloat(formData.VATAmount || 0) -
-      parseFloat(formData.DiscountAmount || 0) +
-      parseFloat(formData.Commission || 0) +
-      parseFloat(formData.ExtraChargeAmount || 0)
-    ).toFixed(2);
-    return parseFloat(total);
-  };
+    setFormData((prev) => {
+      if (prev[name] === value) return prev;
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
+  }, []);
 
   // Helper function to check if section should be shown
   const shouldShowSection = (sectionName) => {
@@ -234,7 +246,9 @@ const POSForm = ({
                         </div>
                       </>
                     ) : config.transSource === "Sales Returns" ? (
-                      <div className="text-red-500 text-sm pt-4">please Select a registered customer for returns</div>
+                      <div className="text-red-500 text-sm pt-4">
+                        please Select a registered customer for returns
+                      </div>
                     ) : (
                       <input
                         type="text"
@@ -281,6 +295,7 @@ const POSForm = ({
                 handleFormChange={handleFormChange}
                 config={config}
                 dropdownData={dropdownData}
+                totalPayable={calculateTotalPayable()}
               />
             </div>
           </div>
@@ -361,6 +376,7 @@ const POSForm = ({
                 handleFormChange={handleFormChange}
                 config={config}
                 dropdownData={dropdownData}
+                totalPayable={calculateTotalPayable()}
               />
             )}
           </>
