@@ -13,6 +13,8 @@ const mockCategories = [
 const defaultModalState = {
   ItemCode: "",
   ItemName: "",
+  StockDesc: "",
+  Units: [],
   UnitQuantities: {},
   UnitPrices: {},
 };
@@ -43,7 +45,8 @@ const InvoiceItemsSection = ({ setFormData }) => {
     return data.pages.flatMap((page) =>
       (page.items || page.data || []).map((item) => ({
         ItemCode: item.ItemCode,
-        ItemName: item.StockDesc,
+        ItemName: item.ItemName || item.StockDesc, // Fallback to StockDesc if ItemName not available
+        StockDesc: item.StockDesc,
         Category: item.ItemType,
         Units: [item.UnitOfMeasure, item.AltUnitOfMeasure].filter(Boolean),
         SellingPrice: item.UnitPrice,
@@ -79,30 +82,30 @@ const InvoiceItemsSection = ({ setFormData }) => {
     return Array.from(map.values());
   }, [invoiceItems]);
 
-  // Compute all possible units from groupedInvoiceItems (only units used in the invoice)
-  const allUnits = useMemo(() => {
-    const set = new Set();
-    groupedInvoiceItems.forEach((item) =>
-      item.Units?.forEach((unit) => set.add(unit))
-    );
-    return Array.from(set);
-  }, [groupedInvoiceItems]);
-
   // Sync grouped items into parent form as RecordItems with computed ItemAmount
   useEffect(() => {
     const recordItems = groupedInvoiceItems.map((item) => {
-      const itemTotal = Object.keys(item.UnitQuantities || {}).reduce(
-        (sum, unit) =>
-          sum +
-          Number(item.UnitQuantities[unit] || 0) *
-            Number(item.UnitPrices[unit] || 0),
-        0
-      );
+      // Calculate total based on fixed table structure
+      const mainUnit = item.Units?.[0];
+      const altUnit = item.Units?.[1];
+      
+      const mainTotal = mainUnit ? 
+        (item.UnitQuantities[mainUnit] || 0) * (item.UnitPrices[mainUnit] || 0) : 0;
+      const altTotal = altUnit ? 
+        (item.UnitQuantities[altUnit] || 0) * (item.UnitPrices[altUnit] || 0) : 0;
+      
+      const itemTotal = mainTotal + altTotal;
+      
       return {
         ItemCode: item.ItemCode,
         ItemName: item.ItemName,
-        UnitQuantities: { ...item.UnitQuantities },
-        UnitPrices: { ...item.UnitPrices },
+        StockDesc: item.StockDesc,
+        Qty: mainUnit ? (item.UnitQuantities[mainUnit] || 0) : 0,
+        UOM: mainUnit || "",
+        Price: mainUnit ? (item.UnitPrices[mainUnit] || 0) : 0,
+        AltQty: altUnit ? (item.UnitQuantities[altUnit] || 0) : 0,
+        AltUOM: altUnit || "",
+        AltPrice: altUnit ? (item.UnitPrices[altUnit] || 0) : 0,
         ItemAmount: itemTotal,
       };
     });
@@ -125,7 +128,8 @@ const InvoiceItemsSection = ({ setFormData }) => {
       items = items.filter(
         (item) =>
           item.ItemName?.toLowerCase().includes(term) ||
-          item.ItemCode?.toLowerCase().includes(term)
+          item.ItemCode?.toLowerCase().includes(term) ||
+          item.StockDesc?.toLowerCase().includes(term)
       );
     }
     return items;
@@ -252,7 +256,7 @@ const InvoiceItemsSection = ({ setFormData }) => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search item by name or code..."
+            placeholder="Search item by name, code, or description..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onFocus={() => {
@@ -289,8 +293,15 @@ const InvoiceItemsSection = ({ setFormData }) => {
                           handleItemClick(item);
                         }}
                       >
-                        <div className="font-semibold text-gray-900 dark:text-white text-base">
-                          {item.ItemName}
+                        <div>
+                          <div className="font-semibold text-gray-900 dark:text-white text-base">
+                            {item.ItemName}
+                          </div>
+                          {item.StockDesc && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {item.StockDesc}
+                            </div>
+                          )}
                         </div>
                         <div className="flex flex-col items-end">
                           <div className="text-xs text-gray-500">
@@ -364,8 +375,15 @@ const InvoiceItemsSection = ({ setFormData }) => {
                       handleItemClick(item);
                     }}
                   >
-                    <div className="font-semibold text-gray-900 dark:text-white text-base">
-                      {item.ItemName}
+                    <div>
+                      <div className="font-semibold text-gray-900 dark:text-white text-base">
+                        {item.ItemName}
+                      </div>
+                      {item.StockDesc && (
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {item.StockDesc}
+                        </div>
+                      )}
                     </div>
                     <div className="flex flex-col items-end">
                       <div className="text-xs text-gray-500">
@@ -430,7 +448,7 @@ const InvoiceItemsSection = ({ setFormData }) => {
               {editingItemCode ? "Edit Item" : "Add Item"}
             </h3>
             <div className="space-y-4">
-              <div>
+              {/* <div>
                 <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
                   Item Name
                 </label>
@@ -441,7 +459,21 @@ const InvoiceItemsSection = ({ setFormData }) => {
                   readOnly
                   className="w-full rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white"
                 />
-              </div>
+              </div> */}
+              {modalItem.StockDesc && (
+                <div>
+                  <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+                    Description
+                  </label>
+                  <input
+                    type="text"
+                    value={modalItem.StockDesc}
+                    name="StockDesc"
+                    readOnly
+                    className="w-full rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white"
+                  />
+                </div>
+              )}
               {/* Inputs for each unit, only show if price > 0 */}
               {Object.keys(modalItem.UnitQuantities).map(
                 (unit, idx) =>
@@ -490,7 +522,7 @@ const InvoiceItemsSection = ({ setFormData }) => {
         </div>
       )}
 
-      {/* Invoice Items Table */}
+      {/* Invoice Items Table - Fixed Headers */}
       {groupedInvoiceItems.length > 0 && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
@@ -503,28 +535,30 @@ const InvoiceItemsSection = ({ setFormData }) => {
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                     SN
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                  {/* <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                     Name
+                  </th> */}
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                    Item Description
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                    Code
+                    Qty
                   </th>
-                  {allUnits.map((unit) => (
-                    <th
-                      key={unit + "-qty"}
-                      className="px-4 py-2 text-left text-xs font-medium text-red-500 dark:text-gray-300 uppercase"
-                    >
-                      {unit} Qty
-                    </th>
-                  ))}
-                  {allUnits.map((unit) => (
-                    <th
-                      key={unit + "-price"}
-                      className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase"
-                    >
-                      {unit} Price
-                    </th>
-                  ))}
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                    UOM
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                    Price
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                    Alt Qty
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                    Alt UOM
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                    Alt Price
+                  </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                     Total Price
                   </th>
@@ -533,47 +567,46 @@ const InvoiceItemsSection = ({ setFormData }) => {
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {groupedInvoiceItems.map((item, idx) => {
-                  const total = allUnits.reduce(
-                    (sum, unit) =>
-                      sum +
-                      (item.UnitQuantities[unit] || 0) *
-                        (item.UnitPrices[unit] || 0),
-                    0
-                  );
+                  const mainUnit = item.Units?.[0];
+                  const altUnit = item.Units?.[1];
+                  
+                  const mainQty = mainUnit ? (item.UnitQuantities[mainUnit] || 0) : 0;
+                  const mainPrice = mainUnit ? (item.UnitPrices[mainUnit] || 0) : 0;
+                  const altQty = altUnit ? (item.UnitQuantities[altUnit] || 0) : 0;
+                  const altPrice = altUnit ? (item.UnitPrices[altUnit] || 0) : 0;
+                  
+                  const total = (mainQty * mainPrice) + (altQty * altPrice);
+                  
                   return (
                     <tr key={item.ItemCode || idx}>
                       <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
-                        {item.SN}
+                        {idx + 1}
                       </td>
-                      <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
+                      {/* <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
                         {item.ItemName}
+                      </td> */}
+                      <td className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {item.StockDesc || "-"}
                       </td>
                       <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
-                        {item.ItemCode}
+                        {mainQty > 0 ? mainQty : "-"}
                       </td>
-                      {allUnits.map((unit) => (
-                        <td
-                          key={unit + "-qty"}
-                          className="px-4 py-2 text-sm text-gray-900 dark:text-white"
-                        >
-                          {typeof item.UnitQuantities[unit] === "number" &&
-                          item.UnitQuantities[unit] > 0
-                            ? item.UnitQuantities[unit]
-                            : "-"}
-                        </td>
-                      ))}
-                      {allUnits.map((unit) => (
-                        <td
-                          key={unit + "-price"}
-                          className="px-4 py-2 text-sm text-gray-900 dark:text-white"
-                        >
-                          {typeof item.UnitPrices[unit] === "number" &&
-                          item.UnitPrices[unit] > 0
-                            ? `₦${item.UnitPrices[unit].toLocaleString()}`
-                            : "-"}
-                        </td>
-                      ))}
                       <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
+                        {mainUnit || "-"}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
+                        {mainPrice > 0 ? `₦${mainPrice.toLocaleString()}` : "-"}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
+                        {altQty > 0 ? altQty : "-"}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
+                        {altUnit || "-"}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
+                        {altPrice > 0 ? `₦${altPrice.toLocaleString()}` : "-"}
+                      </td>
+                      <td className="px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white">
                         ₦{total.toLocaleString()}
                       </td>
                       <td className="px-4 py-2">

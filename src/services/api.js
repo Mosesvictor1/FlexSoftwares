@@ -271,7 +271,7 @@ export const fetchStockItemsPaginated = async ({
         ...(token && { Authorization: `Bearer ${token}` }),
       },
     });
-    console.log("Fetched Stock Items Response = ", response);
+    console.log("Fetched Stock Items Response = ", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching stock items:", error);
