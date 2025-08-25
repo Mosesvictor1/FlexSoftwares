@@ -88,24 +88,27 @@ const InvoiceItemsSection = ({ setFormData }) => {
       // Calculate total based on fixed table structure
       const mainUnit = item.Units?.[0];
       const altUnit = item.Units?.[1];
-      
-      const mainTotal = mainUnit ? 
-        (item.UnitQuantities[mainUnit] || 0) * (item.UnitPrices[mainUnit] || 0) : 0;
-      const altTotal = altUnit ? 
-        (item.UnitQuantities[altUnit] || 0) * (item.UnitPrices[altUnit] || 0) : 0;
-      
+
+      const mainTotal = mainUnit
+        ? (item.UnitQuantities[mainUnit] || 0) *
+          (item.UnitPrices[mainUnit] || 0)
+        : 0;
+      const altTotal = altUnit
+        ? (item.UnitQuantities[altUnit] || 0) * (item.UnitPrices[altUnit] || 0)
+        : 0;
+
       const itemTotal = mainTotal + altTotal;
-      
+
       return {
         ItemCode: item.ItemCode,
         ItemName: item.ItemName,
         StockDesc: item.StockDesc,
-        Qty: mainUnit ? (item.UnitQuantities[mainUnit] || 0) : 0,
+        Qty: mainUnit ? item.UnitQuantities[mainUnit] || 0 : 0,
         UOM: mainUnit || "",
-        Price: mainUnit ? (item.UnitPrices[mainUnit] || 0) : 0,
-        AltQty: altUnit ? (item.UnitQuantities[altUnit] || 0) : 0,
+        Price: mainUnit ? item.UnitPrices[mainUnit] || 0 : 0,
+        AltQty: altUnit ? item.UnitQuantities[altUnit] || 0 : 0,
         AltUOM: altUnit || "",
-        AltPrice: altUnit ? (item.UnitPrices[altUnit] || 0) : 0,
+        AltPrice: altUnit ? item.UnitPrices[altUnit] || 0 : 0,
         ItemAmount: itemTotal,
       };
     });
@@ -228,7 +231,7 @@ const InvoiceItemsSection = ({ setFormData }) => {
     setEditingItemCode(null);
   };
 
-  // Edit item in invoice list - now uses grouped item values
+  // Edit item in invoice  list - now uses grouped item values
   const handleEdit = (idx) => {
     const groupedItem = groupedInvoiceItems[idx];
     setModalItem({ ...groupedItem });
@@ -569,14 +572,20 @@ const InvoiceItemsSection = ({ setFormData }) => {
                 {groupedInvoiceItems.map((item, idx) => {
                   const mainUnit = item.Units?.[0];
                   const altUnit = item.Units?.[1];
-                  
-                  const mainQty = mainUnit ? (item.UnitQuantities[mainUnit] || 0) : 0;
-                  const mainPrice = mainUnit ? (item.UnitPrices[mainUnit] || 0) : 0;
-                  const altQty = altUnit ? (item.UnitQuantities[altUnit] || 0) : 0;
-                  const altPrice = altUnit ? (item.UnitPrices[altUnit] || 0) : 0;
-                  
-                  const total = (mainQty * mainPrice) + (altQty * altPrice);
-                  
+
+                  const mainQty = mainUnit
+                    ? item.UnitQuantities[mainUnit] || 0
+                    : 0;
+                  const mainPrice = mainUnit
+                    ? item.UnitPrices[mainUnit] || 0
+                    : 0;
+                  const altQty = altUnit
+                    ? item.UnitQuantities[altUnit] || 0
+                    : 0;
+                  const altPrice = altUnit ? item.UnitPrices[altUnit] || 0 : 0;
+
+                  const total = mainQty * mainPrice + altQty * altPrice;
+
                   return (
                     <tr key={item.ItemCode || idx}>
                       <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
@@ -589,22 +598,22 @@ const InvoiceItemsSection = ({ setFormData }) => {
                         {item.StockDesc || "-"}
                       </td>
                       <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
-                        {mainQty > 0 ? mainQty : "-"}
+                        {mainQty > 0 ? mainQty : "0"}
                       </td>
                       <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
                         {mainUnit || "-"}
                       </td>
                       <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
-                        {mainPrice > 0 ? `₦${mainPrice.toLocaleString()}` : "-"}
+                        {mainPrice > 0 ? `₦${mainPrice.toLocaleString()}` : "0"}
                       </td>
                       <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
-                        {altQty > 0 ? altQty : "-"}
+                        {altQty > 0 ? altQty : "0"}
                       </td>
                       <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
                         {altUnit || "-"}
                       </td>
                       <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
-                        {altPrice > 0 ? `₦${altPrice.toLocaleString()}` : "-"}
+                        {altPrice > 0 ? `₦${altPrice.toLocaleString()}` : "0"}
                       </td>
                       <td className="px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white">
                         ₦{total.toLocaleString()}
